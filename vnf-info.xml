@@ -1,0 +1,395 @@
+<?xml version="1.0" ?>
+<config xmlns="http://tail-f.com/ns/config/1.0">
+    
+    
+    <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
+        
+        
+        <vnf-info xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
+            
+            
+            <name>F5-cgnat-vdu-vnfinfo</name>
+            
+            
+            <username>admin</username>
+            
+            
+            <vnfd>F5_BIGIP-2.8</vnfd>
+            
+            
+            <vnfd-flavour>default</vnfd-flavour>
+            
+            
+            <instantiation-level>default</instantiation-level>
+            
+            
+            <vnfm>esc-f5</vnfm>
+            
+            
+            <vnfm-type>sol3</vnfm-type>
+            
+            
+            <vim-type>openstack</vim-type>
+            
+            
+            <sol3-vnfm-type>esc</sol3-vnfm-type>
+            
+            
+            <vdu>
+                
+                
+                <id>cgn_du</id>
+                
+                
+                <flavour-name>fl-ttcg2-no-f5-cg-14_1</flavour-name>
+                
+                
+                <resource-allocation>
+                    
+                    
+                    <vim>dmz_openstack_vim</vim>
+                    
+                    
+                    <zone-id>uhn3kld1aziov1</zone-id>
+                    
+                
+                </resource-allocation>
+                
+                
+                <internal-connection-point>
+                    
+                    
+                    <id>cgn_in_int1_4</id>
+                    
+                    
+                    <connection-point-address>
+                        
+                        
+                        <sol3-parameters>
+                            
+                            
+                            <ecp-connection>
+                                
+                                
+                                <ip-address>
+                                    
+                                    
+                                    <id>0</id>
+                                    
+                                    
+                                    <type>IPV6</type>
+                                    
+                                    
+                                    <subnet-name>subnet_dm1-CGNin1-L3BD</subnet-name>
+                                    
+                                    
+                                    <fixed-address>
+                                        
+                                        
+                                        <address>240b:c0e0:101:15e4::f5:f6</address>
+                                        
+                                    
+                                    </fixed-address>
+                                    
+                                
+                                </ip-address>
+                                
+                                
+                                <ip-address>
+                                    
+                                    
+                                    <id>1</id>
+                                    
+                                    
+                                    <type>IPV4</type>
+                                    
+                                    
+                                    <subnet-name>subnet4_dm1-CGNin1-L3BD</subnet-name>
+                                    
+                                    
+                                    <fixed-address>
+                                        
+                                        
+                                        <address>172.31.196.56</address>
+                                        
+                                    
+                                    </fixed-address>
+                                    
+                                
+                                </ip-address>
+                                
+                            
+                            </ecp-connection>
+                            
+                        
+                        </sol3-parameters>
+                        
+                    
+                    </connection-point-address>
+                    
+                
+                </internal-connection-point>
+                
+            
+            </vdu>
+            
+            
+            <resource-orchestration>
+                
+                
+                <vim>
+                    
+                    
+                    <id>dmz_openstack_vim</id>
+                    
+                    
+                    <vim-id>dmz_openstack_vim</vim-id>
+                    
+                    
+                    <access-params>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>password</key>
+                            
+                            
+                            <value>AsU9vMSyPd41OJjb</value>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>project</key>
+                            
+                            
+                            <value>f5esc</value>
+                            
+                            
+                            <type>string</type>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>projectDomain</key>
+                            
+                            
+                            <value>default</value>
+                            
+                            
+                            <type>string</type>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>region</key>
+                            
+                            
+                            <value>RegionOne</value>
+                            
+                            
+                            <type>string</type>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>userDomain</key>
+                            
+                            
+                            <value>default</value>
+                            
+                            
+                            <type>string</type>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>username</key>
+                            
+                            
+                            <value>admin</value>
+                            
+                        
+                        </param>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>vim_project</key>
+                            
+                            
+                            <value>f5esc</value>
+                            
+                            
+                            <type>string</type>
+                            
+                        
+                        </param>
+                        
+                    
+                    </access-params>
+                    
+                    
+                    <interface-params>
+                        
+                        
+                        <param>
+                            
+                            
+                            <key>endpoint</key>
+                            
+                            
+                            <value>https://[240b:c0e0:101:540c:1809::1000]:5000/v3</value>
+                            
+                        
+                        </param>
+                        
+                    
+                    </interface-params>
+                    
+                    
+                    <zone>
+                        
+                        
+                        <id>uhn3kld1aziov1</id>
+                        
+                        
+                        <zone-name>uhn3kld1aziov1</zone-name>
+                        
+                    
+                    </zone>
+                    
+                
+                </vim>
+                
+                
+                <zones>
+                    
+                    
+                    <id>uhn3kld1aziov1</id>
+                    
+                    
+                    <zone-name>uhn3kld1aziov1</zone-name>
+                    
+                    
+                    <vim-id>dmz_openstack_vim</vim-id>
+                    
+                
+                </zones>
+                
+            
+            </resource-orchestration>
+            
+            
+            <vnfd-connection-point>
+                
+                
+                <id>cgn_nat_log_int1_1</id>
+                
+                
+                <network-name>dm1-CGN-Log-L3BD</network-name>
+                
+                
+                <subnets>
+                    
+                    
+                    <subnet-name>subnet6_dm1-CGN-Log-L3BD</subnet-name>
+                    
+                
+                </subnets>
+                
+            
+            </vnfd-connection-point>
+            
+            
+            <description>f5-cgnat_vnfinfo_decsription</description>
+            
+        
+            <additional-parameters>
+                <id>nsd-id</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>nsd-version</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>vnfm-ip-address</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>vnfm-fqdn</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>vnfm-port</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>bootup-time</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>cms-ip-address</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>dhcp-state</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>https-enabled</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>ldaps-enabled</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>ssh-enabled</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+            <additional-parameters>
+                <id>vnfm-ttl</id>
+                <value></value>
+                <type>string</type>
+            </additional-parameters>
+        </vnf-info>
+        
+    
+    </nfv>
+    
+
+</config>
