@@ -5,6 +5,8 @@ import os
 import logging
 import argparse
 import yaml
+import json
+from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +20,11 @@ def read_yaml(file):
 
     return parsed_yaml
 
+def read_json(file):
+    f = open(file, 'rb')
+    sol003json = json.load(f)
+
+    return sol003json
 
 class yangtovnfinfo:
     def __init__(self):
@@ -32,12 +39,12 @@ class yangtovnfinfo:
         self.desc = "Yang model to SOL6 Vnf Info Converter XML"
 
         parser = argparse.ArgumentParser(description=self.desc)
-        parser.add_argument('-sf', '--sol001file',
+        parser.add_argument('-s1f', '--sol001file',
                             help="The sol001 yaml file to be processed")
         parser.add_argument('-tf', '--templatefile',
                             help="The sample vnf-info template file to be processed")
-        parser.add_argument('-r', '--run',
-                            help="Run time dir for ncs")
+        parser.add_argument('-s3f', '--sol003file',
+                            help="sol003 automation json")
         parser.add_argument('-o', '--output',
                             help="The output file for the generated VNF Info (XML format), "
                                  "outputs to stdout if not specified")
@@ -64,6 +71,7 @@ class yangtovnfinfo:
 
         self.vnfInfodom = parse(self.args.templatefile)
         self.parsed_yaml = read_yaml(self.args.sol001file)
+        self.sol003json = read_json(self.args.sol003file)
         self.vnfInfo_ele = self.vnfInfodom.getElementsByTagName("vnf-info")[0]
 
         # Set deployment name, vnfd, flavour id
@@ -81,7 +89,8 @@ class yangtovnfinfo:
         self.add_virtual_link()
         self.add_vnfd_connection_points()
         self.add_inputs()
-        self.vnf_info_sol6 = self.vnfInfodom.toprettyxml(indent="    ", newl="\n")
+        self.vnf_info_sol6 = self.vnfInfodom.toprettyxml(indent="    ", newl=" ")
+        self.vnf_info_sol6 = BeautifulSoup(self.vnf_info_sol6, "xml").prettify()
         self.output()
 
     def add_vnfd_connection_points(self):
@@ -103,7 +112,6 @@ class yangtovnfinfo:
                     vnfdcp_ele.appendChild(nwnameele)
                     vnfdcp_ele.appendChild(subnetele)
                     self.vnfInfo_ele.appendChild(vnfdcp_ele)
-
 
     def add_virtual_link(self):
         for vl in self.parsed_yaml["topology_template"]["node_templates"].keys():
@@ -238,8 +246,8 @@ class yangtovnfinfo:
         attr_type.appendChild(doc.createTextNode("string"))
         paramNode.appendChild(attr_type)
         attr_value = doc.createElement('value')
-        if "default" in self.parsed_yaml["topology_template"]["inputs"][paramId]:
-            attr_value.appendChild(doc.createTextNode(str(self.parsed_yaml["topology_template"]["inputs"][paramId]['default'])))
+        if paramId in self.sol003json["additionalParams"]:
+            attr_value.appendChild(doc.createTextNode(str(self.sol003json["additionalParams"][paramId])))
         else:
             attr_value.appendChild(doc.createTextNode(""))
         paramNode.appendChild(attr_value)

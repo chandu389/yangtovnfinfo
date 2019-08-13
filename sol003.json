@@ -1,0 +1,152 @@
+{
+  "flavourId": "default",
+  "additionalParams": {
+    "BOOTUP_TIME": "600",
+    "CMS_0_IP_ADDRESS1": "10.1.50.146",
+    "DHCP_STATE": "true",
+    "FE_IMAGE_NAME": "mavenir.mstore.VLBFE",
+    "FE_NAME": "FE",
+    "GATEWAY_INTERNAL_DB_IP_ADDR": "2001:100:100:102::5",
+    "GATEWAY_INTERNAL_EMXRouter_IP_ADDR": "2001:100:100:101::5",
+    "GATEWAY_INTERNAL_Tunnel_IP_ADDR": "2001:100:100:103::5",
+    "GEN_ADDR_PAIRS": "::/64",
+    "HTTPS_ENABLED": "true",
+    "LDAPS_ENABLED": "false",
+    "NETWORK_VL_INTERNAL_DB_CIDR": "2001:100:100:102::0/64",
+    "NETWORK_VL_INTERNAL_EMXRouter_CIDR": "2001:100:100:101::0/64",
+    "NETWORK_VL_INTERNAL_Tunnel_CIDR": "2001:100:100:103::0/64",
+    "NSD_ID": "WSG",
+    "NSD_VERSION": "1.0",
+    "SM_IMAGE_NAME": "mavenir.mstore.SM",
+    "SM_NAME": "SM",
+    "SSH_ENABLED": "true",
+    "VIM_FLAVOR": "uag_isbc",
+    "VNFD_ID": "VNFID",
+    "VNFD_VERSION": "1.0",
+    "VNFM_0_IP_ADDRESS1": "10.1.50.181",
+    "VNFM_FQDN": "vnfm_st_bgl.mavenir.com",
+    "VNFM_PORT1": "8080",
+    "VNFM_TTL": "60",
+    "GATEWAY": "10.1.50.1",
+    "WSG_IMAGE_NAME": "mavenir.WSG",
+    "WSG_NAME": "WSG"
+  },
+  "extVirtualLinks": [
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_WSG_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.170"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_WSGFE_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.171"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_WSGSM_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.172"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan301_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_WSGFE_External_CoreSignaling_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:1::149"
+                        ],
+                        "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
