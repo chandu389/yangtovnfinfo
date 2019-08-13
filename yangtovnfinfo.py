@@ -1,3 +1,4 @@
+import pprint
 import sys
 from xml.dom.minidom import parse,Document,parseString
 import os
@@ -116,9 +117,9 @@ class yangtovnfinfo:
                 vdu_ele.appendChild(self.ra_ele)
                 int_cps, ext_cps = self.get_connection_points(k)
                 for int_cp in int_cps:
-                    self.add_internal_cp(int_cp,vdu_ele)
+                    self.add_internal_cp(int_cp, vdu_ele, self.parsed_yaml["topology_template"]["node_templates"][k])
                 for ext_cp in ext_cps:
-                    self.add_external_cp(ext_cp,vdu_ele)
+                    self.add_external_cp(ext_cp, vdu_ele, self.parsed_yaml["topology_template"]["node_templates"][k])
 
                 self.vnfInfo_ele.appendChild(vdu_ele)
 
@@ -146,7 +147,7 @@ class yangtovnfinfo:
                         ext_cps.append(k)
         return int_cps,ext_cps
 
-    def add_internal_cp(self,int_cp, vdu_ele):
+    def add_internal_cp(self, int_cp, vdu_ele, vdujson):
         doc = Document()
         icp = doc.createElement("internal-connection-point")
         id_ele = doc.createElement("id")
@@ -154,16 +155,31 @@ class yangtovnfinfo:
         icp.appendChild(id_ele)
         vdu_ele.appendChild(icp)
 
-    def add_external_cp(self,ext_cp,vdu_ele):
+    def add_external_cp(self, ext_cp, vdu_ele, vdujson):
+        print("Cp Name : "+ext_cp)
         doc = Document()
         extcp = doc.createElement("internal-connection-point")
         id_ele = doc.createElement("id")
         id_ele.appendChild(doc.createTextNode(ext_cp))
         extcp.appendChild(id_ele)
-        cp_ele = parseString("<connection-point-address><sol3-parameters><ecp-connection><ip-address><id></id><type></type><subnet-name></subnet-name><fixed-address><address></address></fixed-address></ip-address></ecp-connection></sol3-parameters></connection-point-address>")
-        extcp.appendChild(cp_ele.getElementsByTagName("connection-point-address")[0])
-        vdu_ele.appendChild(extcp)
+        intcp_eleDom = parseString("<connection-point-address><sol3-parameters><ecp-connection><ip-address><id></id><type></type><subnet-name></subnet-name><fixed-address><address></address></fixed-address></ip-address></ecp-connection></sol3-parameters></connection-point-address>")
+        allow_addr_eleDom = parseString("<allowed-address-pair><address></address><netmask></netmask></allowed-address-pair>")
+        cp_ele = intcp_eleDom.getElementsByTagName("connection-point-address")[0]
+        addr_pair_ele = allow_addr_eleDom.getElementsByTagName("allowed-address-pair")[0]
+        cp_json = self.parsed_yaml["topology_template"]["node_templates"][ext_cp]
+        pp = pprint.PrettyPrinter()
+        pp.pprint(cp_json)
+        if cp_json["properties"]["protocol"][0]["associated_layer_protocol"]:
+            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[0].getElementsByTagName("ip-address")[0].getElementsByTagName("type")[0].appendChild(doc.createTextNode(cp_json["properties"]["protocol"][0]["associated_layer_protocol"]))
+        if cp_json["properties"]["order"]:
+            log.debug(cp_json["properties"]["order"])
+            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[0].getElementsByTagName("ip-address")[0].getElementsByTagName("id")[0].appendChild(doc.createTextNode(str(cp_json["properties"]["order"])))
+        # if vdujson["properties"].has_key("allowed_address_pairs"):
+        #     addr_pair_ele.getElementsByTagName("address")[0].appendchild(doc.createTextNode(vdujson["properties"]["allowed_address_pairs"][0][]))
 
+        extcp.appendChild(cp_ele)
+        extcp.appendChild(addr_pair_ele)
+        vdu_ele.appendChild(extcp)
 
     def add_additional_parameter(self,group):
         doc = Document()
