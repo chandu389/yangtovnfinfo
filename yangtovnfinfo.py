@@ -1,14 +1,26 @@
 import pprint
 import sys
-from xml.dom.minidom import parse,Document,parseString
+from xml.dom.minidom import parse, Document, parseString
 import os
 import logging
 import argparse
 import yaml
+
 log = logging.getLogger(__name__)
 
+
+def read_yaml(file):
+    log.info("Reading YAML file {}".format(file))
+    f = open(file, 'rb')
+    file_read = f.read()
+    f.close()
+    parsed_yaml = yaml.safe_load(file_read)
+
+    return parsed_yaml
+
+
 class yangtovnfinfo:
-    def __init__(self, internal_run=False, internal_args=None):
+    def __init__(self):
         self.variables = None
         self.tosca_lines = None
         self.tosca_vnf = None
@@ -17,20 +29,13 @@ class yangtovnfinfo:
         self.supported_providers = None
         self.cnfv = None
 
-        if internal_args and internal_args["e"] is False:
-            print("Starting SolCon (v{})...".format(__version__))
-
         self.desc = "Yang model to SOL6 Vnf Info Converter XML"
 
         parser = argparse.ArgumentParser(description=self.desc)
         parser.add_argument('-sf', '--sol001file',
                             help="The sol001 yaml file to be processed")
-        parser.add_argument('-yf', '--yangfile',
-                            help="The yang file to be processed")
         parser.add_argument('-tf', '--templatefile',
                             help="The sample vnf-info template file to be processed")
-        parser.add_argument('-g', '--grouping',
-                            help="The yang group for extensions")
         parser.add_argument('-r', '--run',
                             help="Run time dir for ncs")
         parser.add_argument('-o', '--output',
@@ -44,97 +49,101 @@ class yangtovnfinfo:
                             help="Vim connection")
         parser.add_argument('-z', '--zone_id', default="nova",
                             help="zone")
-        parser.add_argument('-p', '--prune', action='store_false',
-                            help='Do not prune empty values from the dict')
-        parser.add_argument('-e', '--output-silent', action='store_true', default=False,
-                            help=argparse.SUPPRESS)
 
         args = parser.parse_args()
 
         self.args = args
         self.parser = parser
 
-        if not args.sol001file or not args.yangfile or not args.templatefile or not args.grouping:
-            print("error: the following arguments are required: -sf/--sol001file, -yf/--yangfile, -tf/--templatefile, "
-                  "-g/--grouping")
+        if not args.sol001file or not args.templatefile:
+            print("error: the following arguments are required: -sf/--sol001file, -tf/--templatefile")
             return
 
         # Initialize the log and have the level set properly
         setup_logger(args.log_level)
 
-        if not os.path.exists("tmp"):
-            os.makedirs("tmp")
-        os.system("pyang -f yin "+self.args.yangfile+" > ./tmp/yang.xml")
-        self.yangdom = parse("./tmp/yang.xml")
         self.vnfInfodom = parse(self.args.templatefile)
-        self.parsed_yaml = self.read_yaml(self.args.sol001file)
+        self.parsed_yaml = read_yaml(self.args.sol001file)
         self.vnfInfo_ele = self.vnfInfodom.getElementsByTagName("vnf-info")[0]
+
+        # Set deployment name, vnfd, flavour id
+        self.doc = Document()
+        self.vnfInfo_ele.getElementsByTagName("name")[0].appendChild(self.doc.createTextNode(
+            self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["product_name"] + "-vnf"))
+        self.vnfInfo_ele.getElementsByTagName("description")[0].appendChild(self.doc.createTextNode(
+            self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["product_name"] + "-vnf"))
+        self.vnfInfo_ele.getElementsByTagName("vnfd")[0].appendChild(self.doc.createTextNode(
+            self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["descriptor_id"]))
+        self.vnfInfo_ele.getElementsByTagName("vnfd-flavour")[0].appendChild(self.doc.createTextNode(
+            self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["flavour_id"]))
         self.ra_ele = self.add_resource_allocation()
         self.add_vdu()
+        self.add_virtual_link()
         self.add_vnfd_connection_points()
-        groupDom = self.find_grouping(self.args.grouping)
-        if (groupDom):
-            for usesgroup in groupDom.getElementsByTagName("uses"):
-                name = usesgroup.getAttribute("name")
-                usesgroupdom = self.find_grouping(name)
-                if (usesgroupdom):
-                    self.add_additional_parameter(usesgroupdom)
-            self.add_additional_parameter(groupDom)
-
-
+        self.add_inputs()
         self.vnf_info_sol6 = self.vnfInfodom.toprettyxml(indent="    ", newl="\n")
         self.output()
 
     def add_vnfd_connection_points(self):
-        doc = Document()
         for extcp in self.parsed_yaml["topology_template"]["substitution_mappings"]["requirements"]:
-            for k,v in extcp.items():
-                vnfdcp_ele = doc.createElement("vnfd-connection-point")
-                idele = doc.createElement("id")
-                idele.appendChild(doc.createTextNode(k))
-                nwnameele = doc.createElement('network-name')
-                nwnameele.appendChild(doc.createTextNode(""))
-                subnetele = doc.createElement("subnets")
-                subnetname_ele = doc.createElement("subnet-name")
-                subnetname_ele.appendChild(doc.createTextNode(""))
-                subnetele.appendChild(subnetname_ele)
-                vnfdcp_ele.appendChild(idele)
-                vnfdcp_ele.appendChild(nwnameele)
-                vnfdcp_ele.appendChild(subnetele)
-                self.vnfInfo_ele.appendChild(vnfdcp_ele)
+            for k, v in extcp.items():
+                vnfdcp_ele = self.doc.createElement("vnfd-connection-point")
+                if "management" in self.parsed_yaml["topology_template"]["node_templates"][k]["properties"] and self.parsed_yaml["topology_template"]["node_templates"][k]["properties"]["management"] == True:
+                    continue
+                else:
+                    idele = self.doc.createElement("id")
+                    idele.appendChild(self.doc.createTextNode(k))
+                    nwnameele = self.doc.createElement('network-name')
+                    nwnameele.appendChild(self.doc.createTextNode(""))
+                    subnetele = self.doc.createElement("subnets")
+                    subnetname_ele = self.doc.createElement("subnet-name")
+                    subnetname_ele.appendChild(self.doc.createTextNode(""))
+                    subnetele.appendChild(subnetname_ele)
+                    vnfdcp_ele.appendChild(idele)
+                    vnfdcp_ele.appendChild(nwnameele)
+                    vnfdcp_ele.appendChild(subnetele)
+                    self.vnfInfo_ele.appendChild(vnfdcp_ele)
+
+
+    def add_virtual_link(self):
+        for vl in self.parsed_yaml["topology_template"]["node_templates"].keys():
+            if self.parsed_yaml["topology_template"]["node_templates"][vl]["type"] == "tosca.nodes.nfv.VnfVirtualLink":
+                vl_ele = self.create_virtual_link(vl)
+                self.vnfInfo_ele.appendChild(vl_ele)
+
+    def create_virtual_link(self,vl):
+        vl_dom = parseString("""
+                <virtual-link>
+                    <id></id>
+                    <is-externally-managed>true</is-externally-managed>
+                    <network-name></network-name>
+                </virtual-link>
+            """)
+        vl_ele = vl_dom.getElementsByTagName("virtual-link")[0]
+        vl_id_ele = vl_ele.getElementsByTagName("id")[0]
+        vl_id_ele.appendChild(self.doc.createTextNode(vl))
+        return vl_ele
 
     def add_vdu(self):
-        doc = Document()
         for k, v in self.parsed_yaml["topology_template"]["node_templates"].items():
             if self.parsed_yaml["topology_template"]["node_templates"][k]["type"] == "cisco.nodes.nfv.Vdu.Compute":
-                vdu_ele = doc.createElement("vdu")
-                id_ele = doc.createElement("id")
-                id_ele.appendChild(doc.createTextNode(k))
-                flavor_ele = doc.createElement("flavour-name")
-                flavor_ele.appendChild(doc.createTextNode(""))
+                vdu_ele = self.doc.createElement("vdu")
+                id_ele = self.doc.createElement("id")
+                id_ele.appendChild(self.doc.createTextNode(k))
+                flavor_ele = self.doc.createElement("flavour-name")
+                flavor_ele.appendChild(self.doc.createTextNode(""))
                 vdu_ele.appendChild(id_ele)
                 vdu_ele.appendChild(flavor_ele)
                 vdu_ele.appendChild(self.ra_ele)
                 int_cps, ext_cps = self.get_connection_points(k)
                 for int_cp in int_cps:
-                    self.add_internal_cp(int_cp, vdu_ele, self.parsed_yaml["topology_template"]["node_templates"][k])
+                    self.add_internal_cp(int_cp, vdu_ele)
                 for ext_cp in ext_cps:
-                    self.add_external_cp(ext_cp, vdu_ele, self.parsed_yaml["topology_template"]["node_templates"][k])
+                    self.add_external_cp(ext_cp, vdu_ele)
 
                 self.vnfInfo_ele.appendChild(vdu_ele)
 
-    def add_resource_allocation(self):
-        doc = Document()
-        ra_ele = doc.createElement("resource-allocation")
-        vim_ele = doc.createElement("vim")
-        vim_ele.appendChild(doc.createTextNode(self.args.vim))
-        zone_ele = doc.createElement("zone-id")
-        zone_ele.appendChild(doc.createTextNode(self.args.zone_id))
-        ra_ele.appendChild(vim_ele)
-        ra_ele.appendChild(zone_ele)
-        return ra_ele
-
-    def get_connection_points(self,vdu_name):
+    def get_connection_points(self, vdu_name):
         int_cps = []
         ext_cps = []
         node_template = self.parsed_yaml["topology_template"]["node_templates"]
@@ -143,37 +152,61 @@ class yangtovnfinfo:
                 if node_template[k]["requirements"][0]["virtual_binding"] and node_template[k]["requirements"][0]["virtual_binding"] == vdu_name:
                     if len(node_template[k]["requirements"]) > 1:
                         int_cps.append(k)
-                    else :
+                    else:
                         ext_cps.append(k)
-        return int_cps,ext_cps
+        return int_cps, ext_cps
 
-    def add_internal_cp(self, int_cp, vdu_ele, vdujson):
-        doc = Document()
-        icp = doc.createElement("internal-connection-point")
-        id_ele = doc.createElement("id")
-        id_ele.appendChild(doc.createTextNode(int_cp))
+    def add_internal_cp(self, int_cp, vdu_ele):
+        log.info("Internal Cp Name : " + int_cp)
+        icp = self.doc.createElement("internal-connection-point")
+        id_ele = self.doc.createElement("id")
+        id_ele.appendChild(self.doc.createTextNode(int_cp))
         icp.appendChild(id_ele)
         vdu_ele.appendChild(icp)
 
-    def add_external_cp(self, ext_cp, vdu_ele, vdujson):
-        print("Cp Name : "+ext_cp)
-        doc = Document()
-        extcp = doc.createElement("internal-connection-point")
-        id_ele = doc.createElement("id")
-        id_ele.appendChild(doc.createTextNode(ext_cp))
+    def add_external_cp(self, ext_cp, vdu_ele):
+        log.info("External Cp Name : " + ext_cp)
+        extcp = self.doc.createElement("internal-connection-point")
+        id_ele = self.doc.createElement("id")
+        id_ele.appendChild(self.doc.createTextNode(ext_cp))
         extcp.appendChild(id_ele)
-        intcp_eleDom = parseString("<connection-point-address><sol3-parameters><ecp-connection><ip-address><id></id><type></type><subnet-name></subnet-name><fixed-address><address></address></fixed-address></ip-address></ecp-connection></sol3-parameters></connection-point-address>")
-        allow_addr_eleDom = parseString("<allowed-address-pair><address></address><netmask></netmask></allowed-address-pair>")
+        intcp_eleDom = parseString("""
+                  <connection-point-address>
+                     <sol3-parameters>
+                        <ecp-connection>
+                            <ip-address>
+                                <id></id>
+                                <type></type>
+                                <subnet-name></subnet-name>
+                                <fixed-address>
+                                    <address></address>
+                                </fixed-address>
+                            </ip-address>
+                        </ecp-connection>
+                    </sol3-parameters>
+                  </connection-point-address>  
+            """)
+        allow_addr_eleDom = parseString(
+            """
+                <allowed-address-pair>
+                    <address></address>
+                    <netmask></netmask>
+                </allowed-address-pair>
+            """)
         cp_ele = intcp_eleDom.getElementsByTagName("connection-point-address")[0]
         addr_pair_ele = allow_addr_eleDom.getElementsByTagName("allowed-address-pair")[0]
         cp_json = self.parsed_yaml["topology_template"]["node_templates"][ext_cp]
-        pp = pprint.PrettyPrinter()
-        pp.pprint(cp_json)
+        # pp = pprint.PrettyPrinter()
+        # pp.pprint(cp_json)
         if cp_json["properties"]["protocol"][0]["associated_layer_protocol"]:
-            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[0].getElementsByTagName("ip-address")[0].getElementsByTagName("type")[0].appendChild(doc.createTextNode(cp_json["properties"]["protocol"][0]["associated_layer_protocol"]))
-        if cp_json["properties"]["order"]:
-            log.debug(cp_json["properties"]["order"])
-            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[0].getElementsByTagName("ip-address")[0].getElementsByTagName("id")[0].appendChild(doc.createTextNode(str(cp_json["properties"]["order"])))
+            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[
+                0].getElementsByTagName("ip-address")[0].getElementsByTagName("type")[0].appendChild(
+                self.doc.createTextNode(cp_json["properties"]["protocol"][0]["associated_layer_protocol"]))
+        # if cp_json["properties"]["order"]:
+        #     log.debug(cp_json["properties"]["order"])
+        #     cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[
+        #         0].getElementsByTagName("ip-address")[0].getElementsByTagName("id")[0].appendChild(
+        #         doc.createTextNode(str(cp_json["properties"]["order"])))
         # if vdujson["properties"].has_key("allowed_address_pairs"):
         #     addr_pair_ele.getElementsByTagName("address")[0].appendchild(doc.createTextNode(vdujson["properties"]["allowed_address_pairs"][0][]))
 
@@ -181,35 +214,36 @@ class yangtovnfinfo:
         extcp.appendChild(addr_pair_ele)
         vdu_ele.appendChild(extcp)
 
-    def add_additional_parameter(self,group):
+    def add_resource_allocation(self):
+        ra_ele = self.doc.createElement("resource-allocation")
+        vim_ele = self.doc.createElement("vim")
+        vim_ele.appendChild(self.doc.createTextNode(self.args.vim))
+        zone_ele = self.doc.createElement("zone-id")
+        zone_ele.appendChild(self.doc.createTextNode(self.args.zone_id))
+        ra_ele.appendChild(vim_ele)
+        ra_ele.appendChild(zone_ele)
+        return ra_ele
+
+    def add_inputs(self):
+        for paramId in self.parsed_yaml["topology_template"]["inputs"].keys():
+            self.add_additional_parameter(paramId)
+
+    def add_additional_parameter(self, paramId):
         doc = Document()
-        for leaf in group.getElementsByTagName("leaf"):
-            paramId = leaf.getAttribute("name")
-            paramNode = doc.createElement('additional-parameters')
-            id = doc.createElement('id')
-            id.appendChild(doc.createTextNode(paramId))
-            paramNode.appendChild(id)
-            attr_value = doc.createElement('value')
+        paramNode = doc.createElement('additional-parameters')
+        id = doc.createElement('id')
+        id.appendChild(doc.createTextNode(paramId))
+        paramNode.appendChild(id)
+        attr_type = doc.createElement('type')
+        attr_type.appendChild(doc.createTextNode("string"))
+        paramNode.appendChild(attr_type)
+        attr_value = doc.createElement('value')
+        if "default" in self.parsed_yaml["topology_template"]["inputs"][paramId]:
+            attr_value.appendChild(doc.createTextNode(str(self.parsed_yaml["topology_template"]["inputs"][paramId]['default'])))
+        else:
             attr_value.appendChild(doc.createTextNode(""))
-            paramNode.appendChild(attr_value)
-            attr_type = doc.createElement('type')
-            attr_type.appendChild(doc.createTextNode("string"))
-            paramNode.appendChild(attr_type)
-            self.vnfInfo_ele.appendChild(paramNode)
-
-    def find_grouping(self, groupName):
-        for group in self.yangdom.getElementsByTagName("grouping"):
-            if (group.getAttribute("name") == groupName):
-                return group
-
-    def read_yaml(self, file):
-        log.info("Reading YAML file {}".format(file))
-        f = open(file, 'rb')
-        file_read = f.read()
-        f.close()
-        parsed_yaml = yaml.safe_load(file_read)
-
-        return parsed_yaml
+        paramNode.appendChild(attr_value)
+        self.vnfInfo_ele.appendChild(paramNode)
 
     def output(self):
         # Get the absolute path, since apparently relative paths sometimes have issues with things?
@@ -219,10 +253,8 @@ class yangtovnfinfo:
             abs_dir = os.path.dirname(abs_path)
             if not os.path.exists(abs_dir):
                 os.makedirs(abs_dir, exist_ok=True)
-
             with open(self.args.output, 'w') as f:
                 f.writelines(self.vnf_info_sol6)
-
         if not self.args.output and not self.args.output_silent:
             sys.stdout.write(self.vnf_info_sol6)
 

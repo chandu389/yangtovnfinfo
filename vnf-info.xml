@@ -8,13 +8,16 @@
         <vnf-info xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
             
             
-            <name>F5-cgnat-vdu-vnfinfo</name>
+            <name>WSG-vnf</name>
+            
+            
+            <description>WSG-vnf</description>
             
             
             <username>admin</username>
             
             
-            <vnfd>F5_BIGIP-2.8</vnfd>
+            <vnfd>acc27c1b-9c00-473c-9e48-f806c51bbd46</vnfd>
             
             
             <vnfd-flavour>default</vnfd-flavour>
@@ -33,105 +36,6 @@
             
             
             <sol3-vnfm-type>esc</sol3-vnfm-type>
-            
-            
-            <vdu>
-                
-                
-                <id>cgn_du</id>
-                
-                
-                <flavour-name>fl-ttcg2-no-f5-cg-14_1</flavour-name>
-                
-                
-                <resource-allocation>
-                    
-                    
-                    <vim>dmz_openstack_vim</vim>
-                    
-                    
-                    <zone-id>uhn3kld1aziov1</zone-id>
-                    
-                
-                </resource-allocation>
-                
-                
-                <internal-connection-point>
-                    
-                    
-                    <id>cgn_in_int1_4</id>
-                    
-                    
-                    <connection-point-address>
-                        
-                        
-                        <sol3-parameters>
-                            
-                            
-                            <ecp-connection>
-                                
-                                
-                                <ip-address>
-                                    
-                                    
-                                    <id>0</id>
-                                    
-                                    
-                                    <type>IPV6</type>
-                                    
-                                    
-                                    <subnet-name>subnet_dm1-CGNin1-L3BD</subnet-name>
-                                    
-                                    
-                                    <fixed-address>
-                                        
-                                        
-                                        <address>240b:c0e0:101:15e4::f5:f6</address>
-                                        
-                                    
-                                    </fixed-address>
-                                    
-                                
-                                </ip-address>
-                                
-                                
-                                <ip-address>
-                                    
-                                    
-                                    <id>1</id>
-                                    
-                                    
-                                    <type>IPV4</type>
-                                    
-                                    
-                                    <subnet-name>subnet4_dm1-CGNin1-L3BD</subnet-name>
-                                    
-                                    
-                                    <fixed-address>
-                                        
-                                        
-                                        <address>172.31.196.56</address>
-                                        
-                                    
-                                    </fixed-address>
-                                    
-                                
-                                </ip-address>
-                                
-                            
-                            </ecp-connection>
-                            
-                        
-                        </sol3-parameters>
-                        
-                    
-                    </connection-point-address>
-                    
-                
-                </internal-connection-point>
-                
-            
-            </vdu>
             
             
             <resource-orchestration>
@@ -305,16 +209,16 @@
             <vnfd-connection-point>
                 
                 
-                <id>cgn_nat_log_int1_1</id>
+                <id>VIM_NETWORK_MANAGEMENT</id>
                 
                 
-                <network-name>dm1-CGN-Log-L3BD</network-name>
+                <network-name>N_ext_oam_ovs</network-name>
                 
                 
                 <subnets>
                     
                     
-                    <subnet-name>subnet6_dm1-CGN-Log-L3BD</subnet-name>
+                    <subnet-name>SNET_ext_oam_ovs</subnet-name>
                     
                 
                 </subnets>
@@ -322,69 +226,500 @@
             
             </vnfd-connection-point>
             
-            
-            <description>f5-cgnat_vnfinfo_decsription</description>
-            
         
+            <vdu>
+                <id>VDU_WSG</id>
+                <flavour-name></flavour-name>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_DB_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_DB_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_Tunnel_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_Tunnel_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_emxRouter_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_Internal_emxRouter_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSG_OAM_CP</id>
+                    <connection-point-address>
+                        
+                     
+                        <sol3-parameters>
+                            
+                        
+                            <ecp-connection>
+                                
+                            
+                                <ip-address>
+                                    
+                                
+                                    <id/>
+                                    
+                                
+                                    <type>ipv6</type>
+                                    
+                                
+                                    <subnet-name/>
+                                    
+                                
+                                    <fixed-address>
+                                        
+                                    
+                                        <address/>
+                                        
+                                
+                                    </fixed-address>
+                                    
+                            
+                                </ip-address>
+                                
+                        
+                            </ecp-connection>
+                            
+                    
+                        </sol3-parameters>
+                        
+                  
+                    </connection-point-address>
+                    <allowed-address-pair>
+                        
+                    
+                        <address/>
+                        
+                    
+                        <netmask/>
+                        
+                
+                    </allowed-address-pair>
+                </internal-connection-point>
+            </vdu>
+            <vdu>
+                <id>VDU_SM</id>
+                <flavour-name></flavour-name>
+                <internal-connection-point>
+                    <id>Provider_WSGSM_Internal_emxRouter_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGSM_Internal_emxRouter_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGSM_OAM_CP</id>
+                    <connection-point-address>
+                        
+                     
+                        <sol3-parameters>
+                            
+                        
+                            <ecp-connection>
+                                
+                            
+                                <ip-address>
+                                    
+                                
+                                    <id/>
+                                    
+                                
+                                    <type>ipv6</type>
+                                    
+                                
+                                    <subnet-name/>
+                                    
+                                
+                                    <fixed-address>
+                                        
+                                    
+                                        <address/>
+                                        
+                                
+                                    </fixed-address>
+                                    
+                            
+                                </ip-address>
+                                
+                        
+                            </ecp-connection>
+                            
+                    
+                        </sol3-parameters>
+                        
+                  
+                    </connection-point-address>
+                    <allowed-address-pair>
+                        
+                    
+                        <address/>
+                        
+                    
+                        <netmask/>
+                        
+                
+                    </allowed-address-pair>
+                </internal-connection-point>
+            </vdu>
+            <vdu>
+                <id>VDU_FE</id>
+                <flavour-name></flavour-name>
+                <resource-allocation>
+                    <vim>dmz_openstack_vim</vim>
+                    <zone-id>nova</zone-id>
+                </resource-allocation>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_Internal_Tunnel_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_Internal_Tunnel_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_Internal_emxRouter_CP0</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_Internal_emxRouter_CP1</id>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_OAM_CP</id>
+                    <connection-point-address>
+                        
+                     
+                        <sol3-parameters>
+                            
+                        
+                            <ecp-connection>
+                                
+                            
+                                <ip-address>
+                                    
+                                
+                                    <id/>
+                                    
+                                
+                                    <type>ipv6</type>
+                                    
+                                
+                                    <subnet-name/>
+                                    
+                                
+                                    <fixed-address>
+                                        
+                                    
+                                        <address/>
+                                        
+                                
+                                    </fixed-address>
+                                    
+                            
+                                </ip-address>
+                                
+                        
+                            </ecp-connection>
+                            
+                    
+                        </sol3-parameters>
+                        
+                  
+                    </connection-point-address>
+                    <allowed-address-pair>
+                        
+                    
+                        <address/>
+                        
+                    
+                        <netmask/>
+                        
+                
+                    </allowed-address-pair>
+                </internal-connection-point>
+                <internal-connection-point>
+                    <id>Provider_WSGFE_External_CoreSignaling_CP</id>
+                    <connection-point-address>
+                        
+                     
+                        <sol3-parameters>
+                            
+                        
+                            <ecp-connection>
+                                
+                            
+                                <ip-address>
+                                    
+                                
+                                    <id/>
+                                    
+                                
+                                    <type>ipv6</type>
+                                    
+                                
+                                    <subnet-name/>
+                                    
+                                
+                                    <fixed-address>
+                                        
+                                    
+                                        <address/>
+                                        
+                                
+                                    </fixed-address>
+                                    
+                            
+                                </ip-address>
+                                
+                        
+                            </ecp-connection>
+                            
+                    
+                        </sol3-parameters>
+                        
+                  
+                    </connection-point-address>
+                    <allowed-address-pair>
+                        
+                    
+                        <address/>
+                        
+                    
+                        <netmask/>
+                        
+                
+                    </allowed-address-pair>
+                </internal-connection-point>
+            </vdu>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_DB_VL_01</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_DB_VL_02</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_Tunnel_VL_01</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_Tunnel_VL_02</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_eMXRouter_VL_01</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <virtual-link>
+                
+                    
+                <id>Internal_WSG_eMXRouter_VL_02</id>
+                
+                    
+                <is-externally-managed>true</is-externally-managed>
+                
+                    
+                <network-name/>
+                
+                
+            </virtual-link>
+            <vnfd-connection-point>
+                <id>Provider_WSGFE_External_CoreSignaling_CP</id>
+                <network-name></network-name>
+                <subnets>
+                    <subnet-name></subnet-name>
+                </subnets>
+            </vnfd-connection-point>
             <additional-parameters>
-                <id>nsd-id</id>
-                <value></value>
+                <id>VIM_FLAVOR</id>
                 <type>string</type>
+                <value>2</value>
             </additional-parameters>
             <additional-parameters>
-                <id>nsd-version</id>
-                <value></value>
+                <id>BOOTUP_TIME</id>
                 <type>string</type>
+                <value>600</value>
             </additional-parameters>
             <additional-parameters>
-                <id>vnfm-ip-address</id>
-                <value></value>
+                <id>WSG_IMAGE_NAME</id>
                 <type>string</type>
+                <value></value>
             </additional-parameters>
             <additional-parameters>
-                <id>vnfm-fqdn</id>
-                <value></value>
+                <id>SM_IMAGE_NAME</id>
                 <type>string</type>
+                <value></value>
             </additional-parameters>
             <additional-parameters>
-                <id>vnfm-port</id>
-                <value></value>
+                <id>FE_IMAGE_NAME</id>
                 <type>string</type>
+                <value></value>
             </additional-parameters>
             <additional-parameters>
-                <id>bootup-time</id>
-                <value></value>
+                <id>GEN_ADDR_PAIRS</id>
                 <type>string</type>
+                <value>::/0</value>
             </additional-parameters>
             <additional-parameters>
-                <id>cms-ip-address</id>
-                <value></value>
+                <id>CMS_0_IP_ADDRESS1</id>
                 <type>string</type>
+                <value></value>
             </additional-parameters>
             <additional-parameters>
-                <id>dhcp-state</id>
-                <value></value>
+                <id>VNFM_0_IP_ADDRESS1</id>
                 <type>string</type>
+                <value></value>
             </additional-parameters>
             <additional-parameters>
-                <id>https-enabled</id>
-                <value></value>
+                <id>WSG_NAME</id>
                 <type>string</type>
+                <value>WSG</value>
             </additional-parameters>
             <additional-parameters>
-                <id>ldaps-enabled</id>
-                <value></value>
+                <id>SM_NAME</id>
                 <type>string</type>
+                <value>SM</value>
             </additional-parameters>
             <additional-parameters>
-                <id>ssh-enabled</id>
-                <value></value>
+                <id>FE_NAME</id>
                 <type>string</type>
+                <value>FE</value>
             </additional-parameters>
             <additional-parameters>
-                <id>vnfm-ttl</id>
-                <value></value>
+                <id>VNFD_ID</id>
                 <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>VNFD_VERSION</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>NSD_ID</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>NSD_VERSION</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>VNFM_FQDN</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>VNFM_TTL</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>VNFM_PORT1</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>SSH_ENABLED</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>HTTPS_ENABLED</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>LDAPS_ENABLED</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>GATEWAY</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>NETWORK_VL_INTERNAL_DB_CIDR</id>
+                <type>string</type>
+                <value>2001::0/64</value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>NETWORK_VL_INTERNAL_Tunnel_CIDR</id>
+                <type>string</type>
+                <value>2001::0/64</value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>NETWORK_VL_INTERNAL_EMXRouter_CIDR</id>
+                <type>string</type>
+                <value>2001::0/64</value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>GATEWAY_INTERNAL_DB_IP_ADDR</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>GATEWAY_INTERNAL_Tunnel_IP_ADDR</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>GATEWAY_INTERNAL_EMXRouter_IP_ADDR</id>
+                <type>string</type>
+                <value></value>
+            </additional-parameters>
+            <additional-parameters>
+                <id>DHCP_STATE</id>
+                <type>string</type>
+                <value>False</value>
             </additional-parameters>
         </vnf-info>
         

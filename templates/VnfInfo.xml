@@ -1,48 +1,16 @@
 <config xmlns="http://tail-f.com/ns/config/1.0">
     <nfv xmlns="urn:etsi:nfv:yang:etsi-nfv-descriptors">
         <vnf-info xmlns="http://cisco.com/ns/nso/cfp/cisco-etsi-nfvo">
-            <name>F5-cgnat-vdu-vnfinfo</name>
+            <name></name>
+            <description></description>
             <username>admin</username>
-            <vnfd>F5_BIGIP-2.8</vnfd>
-            <vnfd-flavour>default</vnfd-flavour>
+            <vnfd></vnfd>
+            <vnfd-flavour></vnfd-flavour>
             <instantiation-level>default</instantiation-level>
             <vnfm>esc-f5</vnfm>
             <vnfm-type>sol3</vnfm-type>
             <vim-type>openstack</vim-type>
             <sol3-vnfm-type>esc</sol3-vnfm-type>
-            <vdu>
-                <id>cgn_du</id>
-                <flavour-name>fl-ttcg2-no-f5-cg-14_1</flavour-name>
-                <resource-allocation>
-                    <vim>dmz_openstack_vim</vim>
-                    <zone-id>uhn3kld1aziov1</zone-id>
-                </resource-allocation>
-                <internal-connection-point>
-                    <id>cgn_in_int1_4</id>
-                    <connection-point-address>
-                        <sol3-parameters>
-                            <ecp-connection>
-                                <ip-address>
-                                    <id>0</id>
-                                    <type>IPV6</type>
-                                    <subnet-name>subnet_dm1-CGNin1-L3BD</subnet-name>
-                                    <fixed-address>
-                                        <address>240b:c0e0:101:15e4::f5:f6</address>
-                                    </fixed-address>
-                                </ip-address>
-                                <ip-address>
-                                    <id>1</id>
-                                    <type>IPV4</type>
-                                    <subnet-name>subnet4_dm1-CGNin1-L3BD</subnet-name>
-                                    <fixed-address>
-                                        <address>172.31.196.56</address>
-                                    </fixed-address>
-                                </ip-address>
-                            </ecp-connection>
-                        </sol3-parameters>
-                    </connection-point-address>
-                </internal-connection-point>
-            </vdu>
             <resource-orchestration>
                 <vim>
                     <id>dmz_openstack_vim</id>
@@ -100,13 +68,12 @@
                 </zones>
             </resource-orchestration>
             <vnfd-connection-point>
-                <id>cgn_nat_log_int1_1</id>
-                <network-name>dm1-CGN-Log-L3BD</network-name>
+                <id>VIM_NETWORK_MANAGEMENT</id>
+                <network-name>N_ext_oam_ovs</network-name>
                 <subnets>
-                    <subnet-name>subnet6_dm1-CGN-Log-L3BD</subnet-name>
+                    <subnet-name>SNET_ext_oam_ovs</subnet-name>
                 </subnets>
             </vnfd-connection-point>
-            <description>f5-cgnat_vnfinfo_decsription</description>
         </vnf-info>
     </nfv>
 </config>
