@@ -84,13 +84,12 @@ class yangtovnfinfo:
             self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["descriptor_id"]))
         self.vnfInfo_ele.getElementsByTagName("vnfd-flavour")[0].appendChild(self.doc.createTextNode(
             self.parsed_yaml["topology_template"]["node_templates"]["vnf"]["properties"]["flavour_id"]))
-        self.ra_ele = self.add_resource_allocation()
         self.add_vdu()
         self.add_virtual_link()
         self.add_vnfd_connection_points()
         self.add_inputs()
         self.vnf_info_sol6 = self.vnfInfodom.toprettyxml(indent="    ", newl=" ")
-        self.vnf_info_sol6 = BeautifulSoup(self.vnf_info_sol6, "xml").prettify()
+        # self.vnf_info_sol6 = BeautifulSoup(self.vnf_info_sol6, "xml").prettify()
         self.output()
 
     def add_vnfd_connection_points(self):
@@ -142,7 +141,7 @@ class yangtovnfinfo:
                 flavor_ele.appendChild(self.doc.createTextNode(""))
                 vdu_ele.appendChild(id_ele)
                 vdu_ele.appendChild(flavor_ele)
-                vdu_ele.appendChild(self.ra_ele)
+                vdu_ele.appendChild(self.add_resource_allocation())
                 int_cps, ext_cps = self.get_connection_points(k)
                 for int_cp in int_cps:
                     self.add_internal_cp(int_cp, vdu_ele)
@@ -206,10 +205,14 @@ class yangtovnfinfo:
         cp_json = self.parsed_yaml["topology_template"]["node_templates"][ext_cp]
         # pp = pprint.PrettyPrinter()
         # pp.pprint(cp_json)
-        if cp_json["properties"]["protocol"][0]["associated_layer_protocol"]:
-            cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[
+        ip_type = "IPV4"
+        if cp_json["properties"]["protocol"][0]["associated_layer_protocol"] == "ipv6":
+            ip_type = "IPV6"
+        cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[
                 0].getElementsByTagName("ip-address")[0].getElementsByTagName("type")[0].appendChild(
-                self.doc.createTextNode(cp_json["properties"]["protocol"][0]["associated_layer_protocol"]))
+                self.doc.createTextNode(ip_type))
+
+
         # if cp_json["properties"]["order"]:
         #     log.debug(cp_json["properties"]["order"])
         #     cp_ele.getElementsByTagName("sol3-parameters")[0].getElementsByTagName("ecp-connection")[

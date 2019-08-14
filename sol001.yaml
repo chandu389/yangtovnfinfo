@@ -11,7 +11,7 @@ metadata:
   template_version: '5.0'
 
 dsl_definitions:
-  descriptor_id: &descriptor_id acc27c1b-9c00-473c-9e48-f806c51bbd46
+  descriptor_id: &descriptor_id wsg_vnfd
   provider: &provider Mavenir
   product_name: &product_name WSG
   software_version: &software_version '5.0'
@@ -205,21 +205,6 @@ topology_template:
       type: string
       default: '2001::0/64'
 
-    GATEWAY_INTERNAL_DB_IP_ADDR:
-      description: Gateway IP Adress of the DB connection point
-      type: string
-      default: ''
-
-    GATEWAY_INTERNAL_Tunnel_IP_ADDR:
-      description: Gateway IP Adress of the Tunnel connection point
-      type: string
-      default: ''
-
-    GATEWAY_INTERNAL_EMXRouter_IP_ADDR:
-      description: Gateway IP Adress of the EMXRouter connection point
-      type: string
-      default: ''
-
     DHCP_STATE:
       description: dhcp state
       type: boolean
@@ -237,6 +222,7 @@ topology_template:
       - Provider_WSG_OAM_CP: [ Provider_WSG_OAM_CP, virtual_link ]
       - Provider_WSGFE_OAM_CP: [ Provider_WSGFE_OAM_CP, virtual_link ]
       - Provider_WSGSM_OAM_CP: [ Provider_WSGSM_OAM_CP, virtual_link ]
+      - Provider_WSGFE_External_AccessSignaling_CP: [ Provider_WSGFE_External_AccessSignaling_CP, virtual_link ]
       - Provider_WSGFE_External_CoreSignaling_CP: [ Provider_WSGFE_External_CoreSignaling_CP, virtual_link ]
 
   node_templates:
@@ -245,7 +231,7 @@ topology_template:
       properties:
         flavour_id: default
         flavour_description: 'Default VNF Deployment Flavour'
-        descriptor_id: acc27c1b-9c00-473c-9e48-f806c51bbd46
+        descriptor_id: wsg_vnfd
         descriptor_version: '1.0'
         provider: Mavenir
         product_name: WSG
@@ -563,14 +549,15 @@ topology_template:
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
-          - associated_layer_protocol: ipv6
+          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 1
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_DB_VL_01
@@ -588,6 +575,7 @@ topology_template:
         trunk_mode: false
         order: 2
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_DB_VL_02
@@ -597,7 +585,7 @@ topology_template:
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
@@ -605,6 +593,7 @@ topology_template:
         trunk_mode: false
         order: 3
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_Tunnel_VL_01
@@ -622,6 +611,7 @@ topology_template:
         trunk_mode: false
         order: 4
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_Tunnel_VL_02
@@ -632,7 +622,7 @@ topology_template:
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
@@ -640,6 +630,7 @@ topology_template:
         trunk_mode: false
         order: 5
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_eMXRouter_VL_01
@@ -658,6 +649,7 @@ topology_template:
         trunk_mode: false
         order: 6
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_WSG
         - virtual_link: Internal_WSG_eMXRouter_VL_02
@@ -683,16 +675,14 @@ topology_template:
       requirements:
         - virtual_binding: VDU_FE
 
-
-#        - virtual_link: # the target node is determined in the NSD "Provider_WSG_OAM_VL"
-    Provider_WSGFE_External_CoreSignaling_CP:
+    Provider_WSGFE_Internal_DB_CP0:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
-          - associated_layer_protocol: ipv6
+          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
@@ -701,8 +691,9 @@ topology_template:
         iface_type: direct
       requirements:
         - virtual_binding: VDU_FE
+        - virtual_link: Internal_WSG_DB_VL_01
 
-    Provider_WSGFE_Internal_Tunnel_CP0:
+    Provider_WSGFE_Internal_DB_CP1:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -715,6 +706,25 @@ topology_template:
         trunk_mode: false
         order: 2
         management: false
+        iface_type: direct
+      requirements:
+        - virtual_binding: VDU_FE
+        - virtual_link: Internal_WSG_DB_VL_02
+
+    Provider_WSGFE_Internal_Tunnel_CP0:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv4
+        protocol:
+          - associated_layer_protocol: ipv4
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 3
+        management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_FE
         - virtual_link: Internal_WSG_Tunnel_VL_01
@@ -730,8 +740,9 @@ topology_template:
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
-        order: 3
+        order: 4
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_FE
         - virtual_link: Internal_WSG_Tunnel_VL_02
@@ -741,14 +752,15 @@ topology_template:
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
-          - associated_layer_protocol: ipv6
+          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
-        order: 4
+        order: 5
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_FE
         - virtual_link: Internal_WSG_eMXRouter_VL_01
@@ -765,11 +777,46 @@ topology_template:
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
-        order: 5
+        order: 6
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_FE
         - virtual_link: Internal_WSG_eMXRouter_VL_02
+
+    Provider_WSGFE_External_AccessSignaling_CP:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv4
+        protocol:
+          - associated_layer_protocol: ipv4
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 7
+        management: false
+        iface_type: direct
+      requirements:
+        - virtual_binding: VDU_FE
+
+    Provider_WSGFE_External_CoreSignaling_CP:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 8
+        management: false
+        iface_type: direct
+      requirements:
+        - virtual_binding: VDU_FE
 
 #######################################
 ##           SM CPs                  ##
@@ -797,14 +844,15 @@ topology_template:
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv6
+          - ipv4
         protocol:
-          - associated_layer_protocol: ipv6
+          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 1
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_SM
         - virtual_link: Internal_WSG_eMXRouter_VL_01
@@ -822,6 +870,7 @@ topology_template:
         trunk_mode: false
         order: 2
         management: false
+        iface_type: direct
       requirements:
         - virtual_binding: VDU_SM
         - virtual_link: Internal_WSG_eMXRouter_VL_02
@@ -837,18 +886,17 @@ topology_template:
       properties:
         connectivity_type:
           layer_protocols:
-            - ipv6
+            - ipv4
         vl_profile:
           min_bitrate_requirements:
             root: 100000000
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
-            - associated_layer_protocol: ipv6
+            - associated_layer_protocol: ipv4
               l3_protocol_data:
-                ip_version: ipv6
+                ip_version: ipv4
                 cidr: { get_input: NETWORK_VL_INTERNAL_DB_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_DB_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
     Internal_WSG_DB_VL_02:
@@ -867,7 +915,6 @@ topology_template:
               l3_protocol_data:
                 ip_version: ipv6
                 cidr: { get_input: NETWORK_VL_INTERNAL_DB_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_DB_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
     Internal_WSG_Tunnel_VL_01:
@@ -875,18 +922,17 @@ topology_template:
       properties:
         connectivity_type:
           layer_protocols:
-            - ipv6
+            - ipv4
         vl_profile:
           min_bitrate_requirements:
             root: 100000000
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
-            - associated_layer_protocol: ipv6
+            - associated_layer_protocol: ipv4
               l3_protocol_data:
-                ip_version: ipv6
+                ip_version: ipv4
                 cidr: { get_input: NETWORK_VL_INTERNAL_Tunnel_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_Tunnel_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
 
@@ -906,7 +952,6 @@ topology_template:
               l3_protocol_data:
                 ip_version: ipv6
                 cidr: { get_input: NETWORK_VL_INTERNAL_Tunnel_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_Tunnel_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
     Internal_WSG_eMXRouter_VL_01:
@@ -914,18 +959,17 @@ topology_template:
       properties:
         connectivity_type:
           layer_protocols:
-            - ipv6
+            - ipv4
         vl_profile:
           min_bitrate_requirements:
             root: 100000000
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
-            - associated_layer_protocol: ipv6
+            - associated_layer_protocol: ipv4
               l3_protocol_data:
-                ip_version: ipv6
+                ip_version: ipv4
                 cidr: { get_input: NETWORK_VL_INTERNAL_EMXRouter_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_EMXRouter_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
 
@@ -945,7 +989,6 @@ topology_template:
               l3_protocol_data:
                 ip_version: ipv6
                 cidr: { get_input: NETWORK_VL_INTERNAL_EMXRouter_CIDR }
-                gateway_ip: { get_input: GATEWAY_INTERNAL_EMXRouter_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
 
