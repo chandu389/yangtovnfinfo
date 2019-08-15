@@ -88,8 +88,6 @@ class yangtovnfinfo:
         self.add_virtual_link()
         self.add_vnfd_connection_points()
         self.add_inputs()
-        self.vnf_info_sol6 = self.vnfInfodom.toprettyxml(indent="    ", newl=" ")
-        # self.vnf_info_sol6 = BeautifulSoup(self.vnf_info_sol6, "xml").prettify()
         self.output()
 
     def add_vnfd_connection_points(self):
@@ -264,17 +262,15 @@ class yangtovnfinfo:
         self.vnfInfo_ele.appendChild(paramNode)
 
     def output(self):
-        # Get the absolute path, since apparently relative paths sometimes have issues with things?
         if self.args.output:
             abs_path = os.path.abspath(self.args.output)
-            # Also python has a function for what I was sloppily doing, so use that
             abs_dir = os.path.dirname(abs_path)
             if not os.path.exists(abs_dir):
                 os.makedirs(abs_dir, exist_ok=True)
             with open(self.args.output, 'w') as f:
-                f.writelines(self.vnf_info_sol6)
-        if not self.args.output and not self.args.output_silent:
-            sys.stdout.write(self.vnf_info_sol6)
+                self.vnfInfodom.writexml(writer=f, encoding='UTF-8', newl='\n', addindent='\t')
+        if not self.args.output:
+            sys.stdout.write(self.vnfInfodom.toprettyxml())
 
 def setup_logger(log_level=logging.INFO):
     log_format = "%(levelname)s - %(message)s"
@@ -285,7 +281,6 @@ def setup_logger(log_level=logging.INFO):
         os.mkdir(log_folder)
 
     logging.basicConfig(level=log_level, filename=log_filename, format=log_format)
-    # Duplicate the output to the console as well as to a file
     console = logging.StreamHandler()
     console.setLevel(log_level)
     console.setFormatter(logging.Formatter(log_format))
