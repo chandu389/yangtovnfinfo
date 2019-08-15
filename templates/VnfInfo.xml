@@ -13,8 +13,8 @@
             <sol3-vnfm-type>esc</sol3-vnfm-type>
             <resource-orchestration>
                 <vim>
-                    <id>dmz_openstack_vim</id>
-                    <vim-id>dmz_openstack_vim</vim-id>
+                    <id>mavenir_openstack_vim</id>
+                    <vim-id>mavenir_openstack_vim</vim-id>
                     <access-params>
                         <param>
                             <key>password</key>
@@ -22,7 +22,7 @@
                         </param>
                         <param>
                             <key>project</key>
-                            <value>f5esc</value>
+                            <value>admin</value>
                             <type>string</type>
                         </param>
                         <param>
@@ -46,7 +46,7 @@
                         </param>
                         <param>
                             <key>vim_project</key>
-                            <value>f5esc</value>
+                            <value>admin</value>
                             <type>string</type>
                         </param>
                     </access-params>
@@ -57,14 +57,14 @@
                         </param>
                     </interface-params>
                     <zone>
-                        <id>uhn3kld1aziov1</id>
-                        <zone-name>uhn3kld1aziov1</zone-name>
+                        <id>nova</id>
+                        <zone-name>nova</zone-name>
                     </zone>
                 </vim>
                 <zones>
-                    <id>uhn3kld1aziov1</id>
-                    <zone-name>uhn3kld1aziov1</zone-name>
-                    <vim-id>dmz_openstack_vim</vim-id>
+                    <id>nova</id>
+                    <zone-name>nova</zone-name>
+                    <vim-id>mavenir_openstack_vim</vim-id>
                 </zones>
             </resource-orchestration>
             <vnfd-connection-point>
