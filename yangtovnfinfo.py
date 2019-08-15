@@ -6,7 +6,7 @@ import logging
 import argparse
 import yaml
 import json
-from bs4 import BeautifulSoup
+import re
 
 log = logging.getLogger(__name__)
 
@@ -267,8 +267,19 @@ class yangtovnfinfo:
             abs_dir = os.path.dirname(abs_path)
             if not os.path.exists(abs_dir):
                 os.makedirs(abs_dir, exist_ok=True)
+
+            # There might be better methods to properly indent a file
             with open(self.args.output, 'w') as f:
                 self.vnfInfodom.writexml(writer=f, encoding='UTF-8', newl='\n', addindent='\t')
+            with open(self.args.output, 'r') as f:
+                file_lines = f.readlines()
+            with open(self.args.output, 'w') as f:
+                newfile_lines = ""
+                for line in file_lines:
+                    if line.isspace() is False:
+                        newfile_lines = newfile_lines + line
+                f.write(newfile_lines)
+
         if not self.args.output:
             sys.stdout.write(self.vnfInfodom.toprettyxml())
 
