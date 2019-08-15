@@ -96,7 +96,7 @@ class yangtovnfinfo:
         for extcp in self.parsed_yaml["topology_template"]["substitution_mappings"]["requirements"]:
             for k, v in extcp.items():
                 vnfdcp_ele = self.doc.createElement("vnfd-connection-point")
-                if "management" in self.parsed_yaml["topology_template"]["node_templates"][k]["properties"] and self.parsed_yaml["topology_template"]["node_templates"][k]["properties"]["management"] == True:
+                if "management" in self.parsed_yaml["topology_template"]["node_templates"][k]["properties"] and self.parsed_yaml["topology_template"]["node_templates"][k]["properties"]["management"] is True:
                     continue
                 else:
                     idele = self.doc.createElement("id")
@@ -169,6 +169,10 @@ class yangtovnfinfo:
         id_ele = self.doc.createElement("id")
         id_ele.appendChild(self.doc.createTextNode(int_cp))
         icp.appendChild(id_ele)
+        if "allowed_address_pairs" in self.parsed_yaml["topology_template"]["node_templates"][int_cp]["properties"]:
+            addr_pair_dom = self.add_allowed_address_pair()
+            addr_pair_ele = addr_pair_dom.getElementsByTagName("allowed-address-pair")[0]
+            icp.appendChild(addr_pair_ele)
         vdu_ele.appendChild(icp)
 
     def add_external_cp(self, ext_cp, vdu_ele):
@@ -193,18 +197,11 @@ class yangtovnfinfo:
                     </sol3-parameters>
                   </connection-point-address>  
             """)
-        allow_addr_eleDom = parseString(
-            """
-                <allowed-address-pair>
-                    <address></address>
-                    <netmask></netmask>
-                </allowed-address-pair>
-            """)
+
         cp_ele = intcp_eleDom.getElementsByTagName("connection-point-address")[0]
+        allow_addr_eleDom = self.add_allowed_address_pair()
         addr_pair_ele = allow_addr_eleDom.getElementsByTagName("allowed-address-pair")[0]
         cp_json = self.parsed_yaml["topology_template"]["node_templates"][ext_cp]
-        # pp = pprint.PrettyPrinter()
-        # pp.pprint(cp_json)
         ip_type = "IPV4"
         if cp_json["properties"]["protocol"][0]["associated_layer_protocol"] == "ipv6":
             ip_type = "IPV6"
@@ -224,6 +221,16 @@ class yangtovnfinfo:
         extcp.appendChild(cp_ele)
         extcp.appendChild(addr_pair_ele)
         vdu_ele.appendChild(extcp)
+
+    def add_allowed_address_pair(self):
+        allow_addr_eleDom = parseString(
+            """
+                <allowed-address-pair>
+                    <address></address>
+                    <netmask></netmask>
+                </allowed-address-pair>
+            """)
+        return allow_addr_eleDom
 
     def add_resource_allocation(self):
         ra_ele = self.doc.createElement("resource-allocation")
