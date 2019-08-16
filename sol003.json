@@ -1,32 +1,72 @@
 {
   "flavourId": "default",
   "additionalParams": {
-    "BOOTUP_TIME": "600",
     "CMS_0_IP_ADDRESS1": "10.1.50.146",
+    "CPU_NUM": "4",
     "DHCP_STATE": "true",
-    "FE_IMAGE_NAME": "mavenir.mstore.VLBFE",
-    "FE_NAME": "FE",
+    "DIAMRE_IMAGE_CHECKSUM": "9b9f7fea49a3bdb0870069fa1920d394",
+    "DIAMRE_IMAGE_NAME": "Mavenir.WRG.DIAMRE1",
+    "DIAMRE_IMAGE_SIZE": "1.3GB",
+    "DIAMRE_NAME": "DIAMRE",
+    "DIAMRE_SW_VERSION": "1_0_6_3-v2",
+    "GATEWAY_INTERNAL_H248_IP_ADDR": "2001:100:100:104::1",
+    "GATEWAY_INTERNAL_SESS_DB_IP_ADDR": "2001:100:100:102::1",
+    "GATEWAY_INTERNAL_SIG_IP_ADDR": "2001:100:100:101::1",
+    "GATEWAY_INTERNAL_TUNNEL_IP_ADDR": "2001:100:100:103::1",
     "GEN_ADDR_PAIRS": "::/64",
-    "HTTPS_ENABLED": "true",
-    "LDAPS_ENABLED": "false",
-    "NETWORK_VL_INTERNAL_DB_CIDR": "2001:100:100:102::0/64",
-    "NETWORK_VL_INTERNAL_EMXRouter_CIDR": "2001:100:100:101::0/64",
-    "NETWORK_VL_INTERNAL_Tunnel_CIDR": "2001:100:100:103::0/64",
-    "NSD_ID": "WSG",
-    "NSD_VERSION": "1.0",
-    "SM_IMAGE_NAME": "mavenir.mstore.SM",
+    "GEN_ADDR_PAIRS4": "0.0.0.0/0",
+    "GEN_BOOTUP_TIME": "1200",
+    "GEN_FLAVOR": "uag_isbc",
+    "GEN_IMAGE_DISK_FORMAT": "QCOW2",
+    "GEN_IMAGE_FORMAT": "BARE",
+    "GEN_IMAGE_MIN_DISK_SIZE": "0",
+    "GTRE_IMAGE_CHECKSUM": "4b7f026eadc56e4900d0150cae3020cb",
+    "GTRE_IMAGE_NAME": "Mavenir.WRG.GTRE1",
+    "GTRE_IMAGE_SIZE": "1.5GB",
+    "GTRE_NAME": "GTRE",
+    "GTRE_SW_VERSION": "2_0_6_3-v2",
+    "Internal_SM_emx_CP_IP1": "2001:100:100:101:1::109",
+    "Internal_SM_emx_CP_IP2": "2001:100:100:101:2::109",
+    "MEM_SIZE": "50",
+    "MP_IMAGE_CHECKSUM": "24d6b844fa86427656573ce14fe65522",
+    "MP_IMAGE_NAME": "Mavenir.WRG.MP1",
+    "MP_IMAGE_SIZE": "1.6GB",
+    "MP_NAME": "MP",
+    "MP_SW_VERSION": "3_0_6_3-v2",
+    "NETWORK_VL_INTERNAL_H248_CIDR": "2001:100:100:104::/64",
+    "NETWORK_VL_INTERNAL_SESS_DB_CIDR": "2001:100:100:102::/64",
+    "NETWORK_VL_INTERNAL_SIG_CIDR": "2001:100:100:101::/64",
+    "NETWORK_VL_INTERNAL_TUNNEL_CIDR": "2001:100:100:103::/64",
+    "NSD_ID": "WRG",
+    "SC_IMAGE_CHECKSUM": "bf083277bad9d8064dfcf85e1a7a6d5a",
+    "SC_IMAGE_NAME": "Mavenir.WRG.SC1",
+    "SC_IMAGE_SIZE": "5GB",
+    "SC_NAME": "SC",
+    "SC_SW_VERSION": "4_0_6_3-v2",
+    "SIPRE_IMAGE_CHECKSUM": "c5d7e684556f7e273cb9d12095695997",
+    "SIPRE_IMAGE_NAME": "Mavenir.WRG.SIPRE1",
+    "SIPRE_IMAGE_SIZE": "1.9GB",
+    "SIPRE_NAME": "SIPRE",
+    "SIPRE_SW_VERSION": "5_0_6_3-v2",
+    "SM_IMAGE_CHECKSUM": "8870b9a4577604bad9e573a0fc64ed6a",
+    "SM_IMAGE_NAME": "mavenir.tas.RE-SM",
+    "SM_IMAGE_SIZE": "957.37MB",
     "SM_NAME": "SM",
-    "SSH_ENABLED": "true",
-    "VIM_FLAVOR": "uag_isbc",
-    "VNFD_ID": "VNFID",
-    "VNFD_VERSION": "1.0",
-    "VNFM_0_IP_ADDRESS1": "10.1.50.181",
-    "VNFM_FQDN": "vnfm_st_bgl.mavenir.com",
-    "VNFM_PORT1": "8080",
-    "VNFM_TTL": "60",
-    "GATEWAY": "10.1.50.1",
-    "WSG_IMAGE_NAME": "mavenir.WSG",
-    "WSG_NAME": "WSG"
+    "SM_SW_VERSION": "1.0",
+    "UPC_IMAGE_CHECKSUM": "a923076e80946a21cdf65b8fbe91c25c",
+    "UPC_IMAGE_NAME": "Mavenir.WRG.UPC1",
+    "UPC_IMAGE_SIZE": "1.4GB",
+    "UPC_NAME": "UPC",
+    "UPC_SW_VERSION": "6_0_6_3-v2",
+    "VIM_NETWORK_ORCH_SEC_GRP_0": "",
+    "VIM_NETWORK_ORCH_SEC_GRP_1": "",
+    "VLB_IMAGE_CHECKSUM": "ba09dd144fd29c9cbb8fdc443b2e33c8",
+    "VLB_IMAGE_NAME": "Mavenir.WRG.VLB1",
+    "VLB_IMAGE_SIZE": "1.3GB",
+    "VLB_NAME": "VLB",
+    "VLB_SW_VERSION": "7_0_6_3-v2",
+    "VNFD_ID": "VNFD",
+    "VNFM_0_IP_ADDRESS1": "10.1.50.159"
   },
   "extVirtualLinks": [
     {
@@ -34,7 +74,7 @@
       "resourceId": "Provider-Mgmt",
       "extCps": [
         {
-          "cpdId": "Provider_WSG_OAM_CP",
+          "cpdId": "Provider_SM_OAM_CP",
           "cpConfig": [
             {
               "cpProtocolData": [
@@ -45,7 +85,7 @@
                       {
                         "type": "IPV4",
                         "fixedAddresses": [
-                          "10.1.50.170"
+                          "10.1.50.195"
                         ],
                         "subnetId": "vlan50"
                       }
@@ -63,7 +103,7 @@
       "resourceId": "Provider-Mgmt",
       "extCps": [
         {
-          "cpdId": "Provider_WSGFE_OAM_CP",
+          "cpdId": "Provider_VLB_OAM_CP",
           "cpConfig": [
             {
               "cpProtocolData": [
@@ -74,36 +114,7 @@
                       {
                         "type": "IPV4",
                         "fixedAddresses": [
-                          "10.1.50.171"
-                        ],
-                        "subnetId": "vlan50"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
-      "resourceId": "Provider-Mgmt",
-      "extCps": [
-        {
-          "cpdId": "Provider_WSGSM_OAM_CP",
-          "cpConfig": [
-            {
-              "cpProtocolData": [
-                {
-                  "layerProtocol": "IP_OVER_ETHERNET",
-                  "ipOverEthernet": {
-                    "ipAddresses": [
-                      {
-                        "type": "IPV4",
-                        "fixedAddresses": [
-                          "10.1.50.172"
+                          "10.1.50.196"
                         ],
                         "subnetId": "vlan50"
                       }
@@ -121,7 +132,7 @@
       "resourceId": "vlan301_sriov",
       "extCps": [
         {
-          "cpdId": "Provider_WSGFE_External_CoreSignaling_CP",
+          "cpdId": "Provider_VLB_SIG_CP_01",
           "cpConfig": [
             {
               "cpProtocolData": [
@@ -132,9 +143,386 @@
                       {
                         "type": "IPV6",
                         "fixedAddresses": [
-                          "2001:100:3:1::149"
+                          "2001:100:3:1::181"
                         ],
                         "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan302_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_VLB_SIG_CP_02",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:2::181"
+                        ],
+                        "subnetId": "vlan302_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan301_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_VLB_ACS_CP_01",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:1::182"
+                        ],
+                        "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan302_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_VLB_ACS_CP_02",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:2::182"
+                        ],
+                        "subnetId": "vlan302_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_SIPRE_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.204"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_DIAM_RE_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.198"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_GTRE_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.199"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_MP_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.200"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan301_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_MP_ECM_CP_01",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:1::183"
+                        ],
+                        "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan302_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_MP_ECM_CP_02",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:2::183"
+                        ],
+                        "subnetId": "vlan302_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan301_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_MP_ACM_CP_01",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:1::184"
+                        ],
+                        "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "vlan302_sriov",
+      "extCps": [
+        {
+          "cpdId": "Provider_MP_ACM_CP_02",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV6",
+                        "fixedAddresses": [
+                          "2001:100:3:2::184"
+                        ],
+                        "subnetId": "vlan301_v6"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_UPC_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.201"
+                        ],
+                        "subnetId": "vlan50"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "extVL-c7cdc33a-d202-4666-b852-f88985716b8e",
+      "resourceId": "Provider-Mgmt",
+      "extCps": [
+        {
+          "cpdId": "Provider_SC_OAM_CP",
+          "cpConfig": [
+            {
+              "cpProtocolData": [
+                {
+                  "layerProtocol": "IP_OVER_ETHERNET",
+                  "ipOverEthernet": {
+                    "ipAddresses": [
+                      {
+                        "type": "IPV4",
+                        "fixedAddresses": [
+                          "10.1.50.202"
+                        ],
+                        "subnetId": "vlan50"
                       }
                     ]
                   }

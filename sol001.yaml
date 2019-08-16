@@ -1,27 +1,33 @@
 tosca_definitions_version: tosca_simple_yaml_1_2
-description: Mavenir WSG VNF
+description: Mavenir WRG complex- CVNF with multiple VDUs
 
 imports:
   - cisco_nfv_sol001_types.yaml
   - etsi_nfv_sol001_vnfd_0_10_0_types.yaml
 
 metadata:
-  template_name: WSG_v10
+  template_name: wrg_vnfd_mav
   template_author: Mavenir Systems
-  template_version: '5.0'
+  template_version: '1.0'
 
 dsl_definitions:
-  descriptor_id: &descriptor_id wsg_vnfd
+  descriptor_id: &descriptor_id b4b3da42-ed16-4dfa-9adc-cd078fc24b76
   provider: &provider Mavenir
-  product_name: &product_name WSG
-  software_version: &software_version '5.0'
-  descriptor_version: &descriptor_version '1.0'
+  product_name: &product_name WRG
+  software_version: &software_version '11.0'
+  descriptor_version: &descriptor_version ''
   flavour_id: &flavour_id default
-  flavour_description: &flavour_description 'Default VNF Deployment Flavour'
-  vnfm: &vnfm 'Cisco ESC'
-
+  flavour_description: &flavour_description Complex deployment
+  vnfm: &vnfm Mavenir
+###########################################################
+#This file has multiple features on different VDU:        #
+#Multi-Instance: SIPRE                                    #
+#Volume: WRG                                              #
+#SRIOV: VLB                                               #
+#Available zone: SIPRE                                    #
+###########################################################
 node_types:
-  Mavenir.Only_FE.11_0.1_0:
+  Mavenir.WRG-SC-R-6-0-2-5:
     derived_from: tosca.nodes.nfv.VNF
     properties:
       descriptor_id:
@@ -60,7 +66,7 @@ node_types:
         default: [ *vnfm ]
       configurable_properties:
         type: tosca.datatypes.nfv.VnfConfigurableProperties
-        description: Describes the configurable properties of the VNF
+        description: VNF configurable parameters
         required: false
       lcm_operations_configuration:
         type: cisco.datatypes.nfv.VnfLcmOperationsConfiguration
@@ -69,46 +75,64 @@ node_types:
     interfaces:
       Vnflcm:
         type: cisco.interfaces.nfv.Vnflcm
-    artifacts:
+#    artifacts:
 
-###################
-# Template Inputs #
-###################
+##################################
+## Topology Template with Inputs ##
+##################################
 topology_template:
   inputs:
-    VIM_FLAVOR:
-      description: The VIM sizing flavor
+    GEN_FLAVOR:
+      description: VIM Flavour for All VDUs
       type: string
-      #example: 'Automation-Cirros-Flavor'
-      default: '2'
-
-    BOOTUP_TIME:
-      description: The time to wait before expecting bootup to be complete
-      type: integer
-      default: 600
-
-    WSG_IMAGE_NAME:
-      description: VDU Image NAME
-      type: string
-      #example: Automation-Cirros-DHCP-2-IF
       default: ''
-
-    SM_IMAGE_NAME:
-      description: VDU Image NAME
+    GEN_BOOTUP_TIME:
+      description: The time taken for the image to boot
       type: string
-      #example: Automation-Cirros-DHCP-2-IF
-      default: ''
-
-    FE_IMAGE_NAME:
-      description: VDU Image NAME
+      default: '600'
+    CPU_NUM:
+      description: number of CPUs for control function
       type: string
-      #example: Automation-Cirros-DHCP-2-IF
-      default: ''
+      default: '4'
+    MEM_SIZE:
+      description: control function virtudal memory size
+      type: string
+      default: '16GB'
 
     GEN_ADDR_PAIRS:
       description: general allowed address pair for IPV6
       type: string
       default: '::/0'
+
+    GEN_ADDR_PAIRS4:
+      description: general allowed address pair for IPV4
+      type: string
+      default: '0.0.0.0/0'
+
+    GEN_IMAGE_FORMAT:
+      description: VDU NAME
+      type: string
+      default: 'BARE'
+
+    GEN_IMAGE_DISK_FORMAT:
+      description: VDU NAME
+      type: string
+      default: 'QCOW2'
+
+    GEN_IMAGE_MIN_DISK_SIZE:
+      description: VDU NAME
+      type: string
+      default: '0'
+
+    VNFD_ID:
+      description: VNFD name
+      type: string
+      default: ''
+
+    NSD_ID:
+      description: NSD name
+      type: string
+      default: ''
 
     CMS_0_IP_ADDRESS1:
       description: CMS IP address
@@ -120,88 +144,24 @@ topology_template:
       type: string
       default: ''
 
-    WSG_NAME:
-       description: HOSTNAME
-       type: string
-       default: 'WSG'
 
-    SM_NAME:
-       description: SM HOSTNAME
-       type: string
-       default: 'SM'
-
-    FE_NAME:
-       description: FE HOSTNAME
-       type: string
-       default: 'FE'
-
-    VNFD_ID:
-       description: VNFD ID
-       type: string
-       default: ''
-
-    VNFD_VERSION:
-       description: VNFD_VERSION
-       type: string
-       default: ''
-
-    NSD_ID:
-       description: NSD ID
-       type: string
-       default: ''
-
-    NSD_VERSION:
-       description: NSD VERSION
-       type: string
-       default: ''
-
-    VNFM_FQDN:
-       description: VNFM FQDN
-       type: string
-       default: ''
-
-    VNFM_TTL:
-       description: VNFM TTL
-       type: string
-       default: ''
-
-    VNFM_PORT1:
-       description: VNFM PORT1
-       type: string
-       default: ''
-
-    SSH_ENABLED:
-        description: SSH_ENABLED
-        type: string
-        default: ''
-
-    HTTPS_ENABLED:
-        description: HTTPS_ENABLED
-        type: string
-        default: ''
-
-    LDAPS_ENABLED:
-        description: LDAPS_ENABLED
-        type: string
-        default: ''
-
-    GATEWAY:
-      description: Gateway
-      type: string
-      default: ''
-
-    NETWORK_VL_INTERNAL_DB_CIDR:
-      description: ip address range for internal DB network
+    NETWORK_VL_INTERNAL_SIG_CIDR:
+      description: ip address range for internal signal network
       type: string
       default: '2001::0/64'
 
-    NETWORK_VL_INTERNAL_Tunnel_CIDR:
-      description: ip address range for internal Tunnel network
+    NETWORK_VL_INTERNAL_SESS_DB_CIDR:
+      description: ip address range for internal session db network
       type: string
       default: '2001::0/64'
 
-    NETWORK_VL_INTERNAL_EMXRouter_CIDR:
-      description: ip address range for internal EMXRouter network
+    NETWORK_VL_INTERNAL_TUNNEL_CIDR:
+      description: ip address range for internal tunnel network
+      type: string
+      default: '2001::0/64'
+
+    NETWORK_VL_INTERNAL_H248_CIDR:
+      description: ip address range for internal h248 network
       type: string
       default: '2001::0/64'
 
@@ -211,34 +171,492 @@ topology_template:
       default: false
 
 
+    VLB_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    VLB_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    VLB_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    VLB_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    VLB_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    DIAMRE_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    DIAMRE_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    DIAMRE_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    DIAMRE_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    DIAMRE_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    SIPRE_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    SIPRE_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    SIPRE_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SIPRE_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SIPRE_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    GTRE_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    GTRE_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    GTRE_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    GTRE_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    GTRE_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    SM_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    SM_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    SM_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SM_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SM_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    MP_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    MP_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    MP_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    MP_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    MP_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    UPC_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    UPC_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    UPC_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    UPC_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    UPC_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+    SC_NAME:
+      description: VDU NAME
+      type: string
+      default: ''
+    SC_SW_VERSION:
+      description: VDU software Image
+      type: string
+      default: ''
+    SC_IMAGE_NAME:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SC_IMAGE_CHECKSUM:
+      description: VDU Image NAME
+      type: string
+      default: ''
+    SC_IMAGE_SIZE:
+      description: VDU NAME
+      type: string
+      default: ''
+
+
+##VLB
+#    VLB_OAM_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the OAM
+#      type: string
+#      default: ''
+#
+#    VLB_SIG1_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the SIG
+#      type: string
+#      default: ''
+#
+#    VLB_SIG2_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the SIG
+#      type: string
+#      default: ''
+#
+#    VLB_DB_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the SIG
+#      type: string
+#      default: ''
+
+#    VLB_ICP01_IP_ADDR:
+#      description: TAS VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    VLB_ICP01_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    VLB_ICP02_IP_ADDR:
+#      description: VLB VDUs allowed IP address for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    VLB_ICP02_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    VLB_ICP03_IP_ADDR:
+#      description: VLB VDUs allowed IP address for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#    VLB_ICP03_ADDR_PAIRS:
+#      description: VLB VDUs allowed IP address pair for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+
+##SIPRE
+
+#    RE_OAM_ADDR_PAIRS:
+#      description: SIPRE VDUs allowed IP address pair for the OAM
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP01_IP_ADDR:
+#      description: SIPRE VDUs allowed IP address for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP01_ADDR_PAIRS:
+#      description: SIPRE VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP02_IP_ADDR:
+#      description: SIPRE VDUs allowed IP address for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP02_ADDR_PAIRS:
+#      description: SIPRE VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP03_IP_ADDR:
+#      description: SIPRE VDUs allowed IP address for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#    SIPRE_ICP03_ADDR_PAIRS:
+#      description: SIPRE VDUs allowed IP address pair for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+
+##DIAMRE
+
+#    DIAMRE_OAM_ADDR_PAIRS:
+#      description: DIAMRE VDUs IP allowed address pair for the OAM
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP01_IP_ADDR:
+#      description: DIAMRE VDUs allowed IP address for the Internal Connectionsns
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP01_ADDR_PAIRS:
+#      description: DIAMRE VDUs allowed IP address pair for the Internal Connection
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP02_IP_ADDR:
+#      description: DIAMRE VDUs allowed IP address for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP02_ADDR_PAIRS:
+#      description: DIAMRE VDUs allowed IP address pair for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP03_IP_ADDR:
+#      description: DIAMRE VDUs allowed IP address for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#    DIAMRE_ICP03_ADDR_PAIRS:
+#      description: DIAMRE VDUs allowed IP address pair for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#
+####GTRE
+#
+#    GTRE_OAM_ADDR_PAIRS:
+#      description: GTRE VDUs IP allowed address pair for the OAM
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP01_IP_ADDR:
+#      description: GTRE VDUs allowed IP address for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP01_ADDR_PAIRS:
+#      description: GTRE VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP02_IP_ADDR:
+#      description: GTRE VDUs allowed IP address for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP02_ADDR_PAIRS:
+#      description: GTRE VDUs allowed IP address pair for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP03_IP_ADDR:
+#      description: GTRE VDUs allowed IP address for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#    GTRE_ICP03_ADDR_PAIRS:
+#      description: GTRE VDUs allowed IP address pair for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#
+####SM
+#
+#    SM_OAM_ADDR_PAIRS:
+#      description: Service Manager (SM) VDUs allowed address pair for the OAM
+#      type: string
+#      default: ''
+#
+#    SM_ICP01_IP_ADDR:
+#      description: SM VDUs allowed IP address for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    SM_ICP01_ADDR_PAIRS:
+#      description: SM VDUs allowed IP address pair for the Internal Connections
+#      type: string
+#      default: ''
+#
+#    SM_ICP02_IP_ADDR:
+#      description: SM VDUs allowed IP address for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    SM_ICP02_ADDR_PAIRS:
+#      description: SM VDUs allowed IP address pair for the Internal Connections-2
+#      type: string
+#      default: ''
+#
+#    SM_ICP03_IP_ADDR:
+#      description: SM VDUs allowed IP address for the Internal Connections-3
+#      type: string
+#      default: ''
+#
+#    SM_ICP03_ADDR_PAIRS:
+#      description: SM VDUs allowed IP address pair for the Internal Connections-3
+#      type: string
+#      default: ''
+
+#    Internal_SM_OAM_CP_IP1:
+#      description: Static IP Adress for Internal connection point
+#      type: string
+#      default: ''
+
+    Internal_SM_emx_CP_IP1:
+      description: Static IP Adress for Internal connection point
+      type: string
+      default: ''
+
+    Internal_SM_emx_CP_IP2:
+      description: Static IP Adress for Internal connection point
+      type: string
+      default: ''
+
+    START_IP_ADDR:
+      description: Start IP Adress of the connection point
+      type: string
+      default: ''
+
+    END_IP_ADDR:
+      description: End IP Adress of the connection point
+      type: string
+      default: ''
+
+    GATEWAY_INTERNAL_SIG_IP_ADDR:
+      description: Gateway IP Adress of the connection point
+      type: string
+      default: ''
+
+    GATEWAY_INTERNAL_SESS_DB_IP_ADDR:
+      description: Gateway IP Adress of the connection point
+      type: string
+      default: ''
+
+    GATEWAY_INTERNAL_TUNNEL_IP_ADDR:
+      description: Gateway IP Adress of the connection point
+      type: string
+      default: ''
+
+    GATEWAY_INTERNAL_H248_IP_ADDR:
+      description: Gateway IP Adress of the connection point
+      type: string
+      default: ''
+
+    VIM_NETWORK_ORCH_SEC_GRP_0:
+      description: Security Group Name
+      type: string
+      default: ''
+
+    VIM_NETWORK_ORCH_SEC_GRP_1:
+      description: Security Group Name
+      type: string
+      default: ''
+
+    SIPRE_IP1:
+      description: SIPRE IP address
+      type: string
+      default: '10.1.50.241'
+
+    SIPRE_IP2:
+      description: SIPRE IP address
+      type: string
+      default: '10.1.50.242'
+
+    SIPRE_IP3:
+      description: SIPRE IP address
+      type: string
+      default: '10.1.50.243'
+
 ########################
 # Substitution Mapping #
 ########################
 ## Ex: "Provider_TAS_OAM_VL" values to be mapped to "resourceId" in NFVO for the Mapping to Virtual Links
 ## Similarly for all the below listed
   substitution_mappings:
-    node_type: Mavenir.Only_FE.11_0.1_0
+    node_type: Mavenir.WRG-SC-R-6-0-2-5
     requirements:
-      - Provider_WSG_OAM_CP: [ Provider_WSG_OAM_CP, virtual_link ]
-      - Provider_WSGFE_OAM_CP: [ Provider_WSGFE_OAM_CP, virtual_link ]
-      - Provider_WSGSM_OAM_CP: [ Provider_WSGSM_OAM_CP, virtual_link ]
-      - Provider_WSGFE_External_AccessSignaling_CP: [ Provider_WSGFE_External_AccessSignaling_CP, virtual_link ]
-      - Provider_WSGFE_External_CoreSignaling_CP: [ Provider_WSGFE_External_CoreSignaling_CP, virtual_link ]
+      - Provider_SM_OAM_VL: [ Provider_SM_OAM_CP, virtual_link ]
+      - Provider_VLB_OAM_VL: [ Provider_VLB_OAM_CP, virtual_link ]
+      - Provider_VLB_SIG1_VL: [ Provider_VLB_SIG_CP_01, virtual_link ]
+      - Provider_VLB_SIG2_VL: [ Provider_VLB_SIG_CP_02, virtual_link ]
+      - Provider_VLB_ACS1_VL: [ Provider_VLB_ACS_CP_01, virtual_link ]
+      - Provider_VLB_ACS2_VL: [ Provider_VLB_ACS_CP_02, virtual_link ]
+      - Provider_SIPRE_OAM_VL: [ Provider_SIPRE_OAM_CP, virtual_link ]
+      - Provider_DIAM_RE_OAM_VL: [ Provider_DIAM_RE_OAM_CP, virtual_link ]
+      - Provider_GTRE_OAM_VL: [ Provider_GTRE_OAM_CP, virtual_link ]
+      - Provider_MP_OAM_VL: [ Provider_MP_OAM_CP, virtual_link ]
+      - Provider_MP_ECM1_VL: [ Provider_MP_ECM_CP_01, virtual_link ]
+      - Provider_MP_ECM2_VL: [ Provider_MP_ECM_CP_02, virtual_link ]
+      - Provider_MP_ACM1_VL: [ Provider_MP_ACM_CP_01, virtual_link ]
+      - Provider_MP_ACM2_VL: [ Provider_MP_ACM_CP_02, virtual_link ]
+      - Provider_UPC_OAM_VL: [ Provider_UPC_OAM_CP, virtual_link ]
+      - Provider_SC_OAM_VL: [ Provider_SC_OAM_CP, virtual_link ]
 
+
+#########################
+# Virtual Block Storage #
+#########################
+######################################
+###  Nodes with VNF Configurations  ##
+######################################
   node_templates:
     vnf:
-      type: Mavenir.Only_FE.11_0.1_0
+      type: Mavenir.WRG-SC-R-6-0-2-5
       properties:
-        flavour_id: default
-        flavour_description: 'Default VNF Deployment Flavour'
-        descriptor_id: wsg_vnfd
-        descriptor_version: '1.0'
+        descriptor_id: b4b3da42-ed16-4dfa-9adc-cd078fc24b76
+        descriptor_version: ''
         provider: Mavenir
-        product_name: WSG
+        product_name: WRG
         software_version: 11.0
-        product_info_name: WSG
+        product_info_name: 'WRG'
         vnfm_info:
-          - '9:Cisco Elastic Services Controller:v04.05.01'
+          - 'Mavenir'
         configurable_properties:
           is_autoscale_enabled: false
           is_autoheal_enabled: false
@@ -246,93 +664,31 @@ topology_template:
           heal:
             recovery_action: REBOOT_THEN_REDEPLOY
             recovery_wait_time: 1
+        flavour_id: default
+        flavour_description: 'Complex deployment'
+
 
 ##################################
 # VDUs configuration Parameters ##
 ##################################
-#VDU- WSG
-
-    VDU_WSG:
-      type: cisco.nodes.nfv.Vdu.Compute
-      properties:
-        name: WSG
-        description: VDUs active:standby (1:1) redundant pair of WSG VDUs
-        boot_order:
-          - WSG_Boot_Partition
-        configurable_properties:
-          additional_vnfc_configurable_properties:
-            vim_flavor: { get_input: VIM_FLAVOR }
-            bootup_time: { get_input: BOOTUP_TIME }
-        vdu_profile:
-          min_number_of_instances: 1
-          max_number_of_instances: 1
-        kpi_data:
-          VM_ALIVE-1:
-            event_name: 'VM_ALIVE'
-            metric_value: '1'
-            metric_cond: 'GT'
-            metric_type: 'UINT32'
-            metric_occurrences_true: 1
-            metric_occurrences_false: 30
-            metric_collector:
-              type: 'ICMPPing'
-              nicid: 0
-              address_id: 0
-              poll_frequency: 10
-              polling_unit: 'seconds'
-              continuous_alarm: false
-        admin_rules:
-          VM_ALIVE:
-            event_name: 'VM_ALIVE'
-            action:
-              - 'ALWAYS log'
-              - 'FALSE recover autohealing'
-              - 'TRUE esc_vm_alive_notification'
-        vendor_section:
-          cisco_esc:
-            config_data:
-              '--user-data':
-                file: ../Files/Scripts/WSG_config.txt
-                variables:
-                  WSG_NAME: { get_input: WSG_NAME }
-                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
-                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
-                  VNFD_ID: { get_input: VNFD_ID }
-                  VNFD_VERSION: { get_input: VNFD_VERSION }
-                  NSD_VERSION: { get_input: NSD_VERSION }
-                  VNFM_FQDN: { get_input: VNFM_FQDN }
-                  VNFM_TTL: { get_input: VNFM_TTL }
-                  NSD_ID: { get_input: NSD_ID }
-                  SSH_ENABLED: { get_input: SSH_ENABLED }
-                  HTTPS_ENABLED: { get_input: HTTPS_ENABLED }
-                  LDAPS_ENABLED: { get_input: LDAPS_ENABLED }
-                  VNFM_PORT1: { get_input: VNFM_PORT1 }
-                  GATEWAY: { get_input: GATEWAY }
-
-      capabilities:
-        virtual_compute:
-           properties:
-            virtual_cpu:
-              num_virtual_cpu: 8
-            virtual_memory:
-              virtual_mem_size: 16 GB
-      requirements:
-        - virtual_storage: WSG_Boot_Partition
-
+#VDU- Service Manager
     VDU_SM:
       type: cisco.nodes.nfv.Vdu.Compute
       properties:
-        name: SM
-        description: VDUs active:standby (1:1) redundant pair of SDC VDUs
+        name: { get_input: SM_NAME }
+        description: VDU1 of the SM node for providing services
         boot_order:
-          - SM_Boot_Partition
+          - VDU_SM_Boot_Partition
         configurable_properties:
           additional_vnfc_configurable_properties:
-            vim_flavor: { get_input: VIM_FLAVOR }
-            bootup_time: { get_input: BOOTUP_TIME }
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
         vdu_profile:
           min_number_of_instances: 1
           max_number_of_instances: 1
+#        placement_enforcement: strict
+#        placement_type: zone
+#        placement_target: Zone-3
         kpi_data:
           VM_ALIVE-1:
             event_name: 'VM_ALIVE'
@@ -349,7 +705,7 @@ topology_template:
               polling_unit: 'seconds'
               continuous_alarm: false
         admin_rules:
-          VM_ALIVE:
+          VM_ALIVE-1:
             event_name: 'VM_ALIVE'
             action:
               - 'ALWAYS log'
@@ -359,176 +715,613 @@ topology_template:
           cisco_esc:
             config_data:
               '--user-data':
-                file: ../Files/Scripts/SM_config.txt
+                file: ../Files/Scripts/sm_config.txt
                 variables:
+                  VNFD_ID: { get_input: VNFD_ID }
                   SM_NAME: { get_input: SM_NAME }
+                  NSD_ID: { get_input: NSD_ID }
                   CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
                   VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
-                  VNFD_ID: { get_input: VNFD_ID }
-                  VNFD_VERSION: { get_input: VNFD_VERSION }
-                  NSD_VERSION: { get_input: NSD_VERSION }
-                  VNFM_FQDN: { get_input: VNFM_FQDN }
-                  VNFM_TTL: { get_input: VNFM_TTL }
-                  NSD_ID: { get_input: NSD_ID }
-                  SSH_ENABLED: { get_input: SSH_ENABLED }
-                  HTTPS_ENABLED: { get_input: HTTPS_ENABLED }
-                  LDAPS_ENABLED: { get_input: LDAPS_ENABLED }
-                  VNFM_PORT1: { get_input: VNFM_PORT1 }
-                  GATEWAY: { get_input: GATEWAY }
-
       capabilities:
         virtual_compute:
            properties:
             virtual_cpu:
-              num_virtual_cpu: 8
+              num_virtual_cpu: { get_input: CPU_NUM }
             virtual_memory:
-              virtual_mem_size: 16 GB
+              virtual_mem_size: { get_input: MEM_SIZE }
       requirements:
-        - virtual_storage: SM_Boot_Partition
+        - virtual_storage: VDU_SM_Boot_Partition
 
-
-
-    VDU_FE:
-      type: cisco.nodes.nfv.Vdu.Compute
-      properties:
-        name: FE
-        description: VDUs active:standby (1:1) redundant pair of SDC VDUs
-        boot_order:
-          - FE_Boot_Partition
-        configurable_properties:
-          additional_vnfc_configurable_properties:
-            vim_flavor: { get_input: VIM_FLAVOR }
-            bootup_time: { get_input: BOOTUP_TIME }
-        vdu_profile:
-          min_number_of_instances: 1
-          max_number_of_instances: 1
-        kpi_data:
-          VM_ALIVE-1:
-            event_name: 'VM_ALIVE'
-            metric_value: '1'
-            metric_cond: 'GT'
-            metric_type: 'UINT32'
-            metric_occurrences_true: 1
-            metric_occurrences_false: 30
-            metric_collector:
-              type: 'ICMPPing'
-              nicid: 0
-              address_id: 0
-              poll_frequency: 10
-              polling_unit: 'seconds'
-              continuous_alarm: false
-        admin_rules:
-          VM_ALIVE:
-            event_name: 'VM_ALIVE'
-            action:
-              - 'ALWAYS log'
-              - 'FALSE recover autohealing'
-              - 'TRUE esc_vm_alive_notification'
-        vendor_section:
-          cisco_esc:
-            config_data:
-              '--user-data':
-                file: ../Files/Scripts/FE_config.txt
-                variables:
-                  FE_NAME: { get_input: FE_NAME }
-                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
-                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
-                  VNFD_ID: { get_input: VNFD_ID }
-                  VNFD_VERSION: { get_input: VNFD_VERSION }
-                  NSD_VERSION: { get_input: NSD_VERSION }
-                  VNFM_FQDN: { get_input: VNFM_FQDN }
-                  VNFM_TTL: { get_input: VNFM_TTL }
-                  NSD_ID: { get_input: NSD_ID }
-                  SSH_ENABLED: { get_input: SSH_ENABLED }
-                  HTTPS_ENABLED: { get_input: HTTPS_ENABLED }
-                  LDAPS_ENABLED: { get_input: LDAPS_ENABLED }
-                  VNFM_PORT1: { get_input: VNFM_PORT1 }
-                  GATEWAY: { get_input: GATEWAY }
-
-
-      capabilities:
-        virtual_compute:
-           properties:
-            virtual_cpu:
-              num_virtual_cpu: 8
-            virtual_memory:
-              virtual_mem_size: 16 GB
-      requirements:
-        - virtual_storage: FE_Boot_Partition
-
-
-    WSG_Boot_Partition:
+    VDU_SM_Boot_Partition:
       type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
       properties:
         virtual_block_storage_data:
-          size_of_storage: 100 GB
+          size_of_storage: "80GB"
           vdu_storage_requirements:
-            vol_id: 1
-            bus: 'ide'
-            type: 'LUKS'
-        sw_image_data:
-          name: { get_input: WSG_IMAGE_NAME }
-          version: '1.0'
-          checksum: 48d12496504bb188ff7462ef3d52c4b2
-          container_format: bare
-          disk_format: qcow2
-          min_disk: 10 GB
-          size: 40 GB
-      artifacts:
-        sw_image:
-          type: tosca.artifacts.nfv.SwImage
-          file: WSGFEimagefile
-
-    SM_Boot_Partition:
-      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
-      properties:
-        virtual_block_storage_data:
-          size_of_storage: 100 GB
-          vdu_storage_requirements:
-            vol_id: 1
-            bus: 'ide'
-            type: 'LUKS'
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
         sw_image_data:
           name: { get_input: SM_IMAGE_NAME }
-          version: '1.0'
-          checksum: 48d12496504bb188ff7462ef3d52c4b2
-          container_format: bare
-          disk_format: qcow2
-          min_disk: 10 GB
-          size: 40 GB
+          version: { get_input: SM_SW_VERSION }
+          checksum: { get_input: SM_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: SM_IMAGE_SIZE }
       artifacts:
         sw_image:
           type: tosca.artifacts.nfv.SwImage
-          file: SMFEimagefile
+          file: ../Files/Images/SM.image.qcow2
 
+#VDU- VLB
+    VDU_VLB:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: VLB_NAME }
+        description: VDUs active:standby (1:1) redundant pair of VLB VDUs
+        boot_order:
+          - VDU_VLB_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/vlb_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  VLB_NAME: { get_input: VLB_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_VLB_Boot_Partition
 
-    FE_Boot_Partition:
+    VDU_VLB_Boot_Partition:
       type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
       properties:
         virtual_block_storage_data:
-          size_of_storage: 100 GB
+          size_of_storage: "80GB"
           vdu_storage_requirements:
-            vol_id: 1
-            bus: 'ide'
-            type: 'LUKS'
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
         sw_image_data:
-          name: { get_input: FE_IMAGE_NAME }
-          version: '1.0'
-          checksum: 48d12496504bb188ff7462ef3d52c4b2
-          container_format: bare
-          disk_format: qcow2
-          min_disk: 10 GB
-          size: 40 GB
+          name: { get_input: VLB_IMAGE_NAME }
+          version: { get_input: VLB_SW_VERSION }
+          checksum: { get_input: VLB_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: VLB_IMAGE_SIZE }
       artifacts:
         sw_image:
           type: tosca.artifacts.nfv.SwImage
-          file: FEimagefile
+          file: ../Files/Images/VLB.image.qcow2
+
+#VDU- SIP RE
+    VDU_SIPRE:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: SIPRE_NAME }
+        description: VDU1 of the SIPRE node for providing services
+        boot_order:
+          - VDU_SIPRE_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+#        placement_enforcement: strict
+#        placement_type: zone
+#        placement_target: Zone-3
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/sipre_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  SIPRE_NAME: { get_input: SIPRE_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_SIPRE_Boot_Partition
+
+    VDU_SIPRE_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "80GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: SIPRE_IMAGE_NAME }
+          version: { get_input: SIPRE_SW_VERSION }
+          checksum: { get_input: SIPRE_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: SIPRE_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/SIPRE.image.qcow2
+
+#VDU- Diameter RE
+    VDU_DIAMRE:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: DIAMRE_NAME }
+        description: VDU1 of the DIAMRE node for providing services
+        boot_order:
+          - VDU_DIAMRE_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/diamre_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  DIAMRE_NAME: { get_input: DIAMRE_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_DIAMRE_Boot_Partition
+
+    VDU_DIAMRE_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "80GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: DIAMRE_IMAGE_NAME }
+          version: { get_input: DIAMRE_SW_VERSION }
+          checksum: { get_input: DIAMRE_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: DIAMRE_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/DIAMRE.image.qcow2
+
+#VDU- GT RE
+    VDU_GTRE:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: GTRE_NAME }
+        description: VDU1 of the GTRE node for providing services
+        boot_order:
+          - VDU_GTRE_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/gtre_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  GTRE_NAME: { get_input: GTRE_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_GTRE_Boot_Partition
+
+    VDU_GTRE_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "80GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: GTRE_IMAGE_NAME }
+          version: { get_input: GTRE_SW_VERSION }
+          checksum: { get_input: GTRE_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: GTRE_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/GTRE.image.qcow2
+
+#VDU- MP
+    VDU_MP:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: MP_NAME }
+        description: VDU1 of the MP node for providing services
+        boot_order:
+          - VDU_MP_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/mp_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  MP_NAME: { get_input: MP_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_MP_Boot_Partition
+
+    VDU_MP_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "80GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: MP_IMAGE_NAME }
+          version: { get_input: MP_SW_VERSION }
+          checksum: { get_input: MP_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: MP_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/MP.image.qcow2
+
+#VDU- UPC
+    VDU_UPC:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: UPC_NAME }
+        description: VDU1 of the UPC node for providing services
+        boot_order:
+          - VDU_UPC_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/upc_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  UPC_NAME: { get_input: UPC_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_UPC_Boot_Partition
+
+    VDU_UPC_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "80GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: UPC_IMAGE_NAME }
+          version: { get_input: UPC_SW_VERSION }
+          checksum: { get_input: UPC_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: UPC_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/UPC.image.qcow2
+
+#VDU- SC
+    VDU_SC:
+      type: cisco.nodes.nfv.Vdu.Compute
+      properties:
+        name: { get_input: SC_NAME }
+        description: VDU1 of the SC node for providing services
+        boot_order:
+          - VDU_SC_Boot_Partition
+        configurable_properties:
+          additional_vnfc_configurable_properties:
+            vim_flavor: { get_input: GEN_FLAVOR }
+            bootup_time: { get_input: GEN_BOOTUP_TIME }
+        vdu_profile:
+          min_number_of_instances: 1
+          max_number_of_instances: 1
+        kpi_data:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            metric_value: '1'
+            metric_cond: 'GT'
+            metric_type: 'UINT32'
+            metric_occurrences_true: 1
+            metric_occurrences_false: 30
+            metric_collector:
+              type: 'ICMPPing'
+              nicid: 0
+              address_id: 0
+              poll_frequency: 10
+              polling_unit: 'seconds'
+              continuous_alarm: false
+        admin_rules:
+          VM_ALIVE-1:
+            event_name: 'VM_ALIVE'
+            action:
+              - 'ALWAYS log'
+              - 'FALSE recover autohealing'
+              - 'TRUE esc_vm_alive_notification'
+        vendor_section:
+          cisco_esc:
+            config_data:
+              '--user-data':
+                file: ../Files/Scripts/sc_config.txt
+                variables:
+                  VNFD_ID: { get_input: VNFD_ID }
+                  SC_NAME: { get_input: SC_NAME }
+                  NSD_ID: { get_input: NSD_ID }
+                  CMS_0_IP_ADDRESS1: { get_input: CMS_0_IP_ADDRESS1 }
+                  VNFM_0_IP_ADDRESS1: { get_input: VNFM_0_IP_ADDRESS1 }
+      capabilities:
+        virtual_compute:
+           properties:
+            virtual_cpu:
+              num_virtual_cpu: { get_input: CPU_NUM }
+            virtual_memory:
+              virtual_mem_size: { get_input: MEM_SIZE }
+      requirements:
+        - virtual_storage: VDU_SC_Boot_Partition
+
+    VDU_SC_Boot_Partition:
+      type: cisco.nodes.nfv.Vdu.VirtualBlockStorage
+      properties:
+        virtual_block_storage_data:
+          size_of_storage: "150GB"
+          vdu_storage_requirements:
+            vol_id: "1"
+            bus: "ide"
+            type: LUKS
+        sw_image_data:
+          name: { get_input: SC_IMAGE_NAME }
+          version: { get_input: SC_SW_VERSION }
+          checksum: { get_input: SC_IMAGE_CHECKSUM }
+          container_format: { get_input: GEN_IMAGE_FORMAT }
+          disk_format: { get_input: GEN_IMAGE_DISK_FORMAT }
+          min_disk: { get_input: GEN_IMAGE_MIN_DISK_SIZE }
+          size: { get_input: SC_IMAGE_SIZE }
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: ../Files/Images/SC.image.qcow2
+
 
 #######################################
-##           WSG CPs                 ##
+# Connection points Details for SM##
 #######################################
-
-    Provider_WSG_OAM_CP:
+    Provider_SM_OAM_CP:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -537,68 +1330,56 @@ topology_template:
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
         trunk_mode: false
         order: 0
         management: true
       requirements:
-        - virtual_binding: VDU_WSG
+        - virtual_binding: VDU_SM
+#        - virtual_link: # the target node is determined in the NSD "Provider_SM_OAM_VL"
 
-    Provider_WSG_Internal_DB_CP0:
+    Internal_SM_emx_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
-        description: External Connection Point to access Outside
+        description: Internal Connection Point on VL
         layer_protocols:
-          - ipv4
+          - ipv6
         protocol:
-          - associated_layer_protocol: ipv4
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 1
         management: false
-        iface_type: direct
+        ip_subnet:
+          - ip_address: { get_input: Internal_SM_emx_CP_IP1}
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_DB_VL_01
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_SM
 
-    Provider_WSG_Internal_DB_CP1:
+    Internal_SM_emx_CP_02:
       type: cisco.nodes.nfv.VduCp
       properties:
-        description: External Connection Point to access Outside
+        description: Internal Connection Point on VL
         layer_protocols:
           - ipv6
         protocol:
           - associated_layer_protocol: ipv6
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 2
         management: false
-        iface_type: direct
-      requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_DB_VL_02
-
-    Provider_WSG_Internal_Tunnel_CP0:
-      type: cisco.nodes.nfv.VduCp
-      properties:
-        description: External Connection Point to access Outside
-        layer_protocols:
-          - ipv4
-        protocol:
-          - associated_layer_protocol: ipv6
+        ip_subnet:
+          - ip_address: { get_input: Internal_SM_emx_CP_IP2}
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
-        trunk_mode: false
-        order: 3
-        management: false
-        iface_type: direct
       requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_Tunnel_VL_01
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_SM
 
-    Provider_WSG_Internal_Tunnel_CP1:
+#######################################
+# Connection points Details for VLB##
+#######################################
+    Provider_VLB_OAM_CP:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -607,22 +1388,88 @@ topology_template:
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 0
+        management: true
+      requirements:
+        - virtual_binding: VDU_VLB
+#        - virtual_link: # the target node is determined in the NSD "Provider_VLB_OAM_VL"
+
+    Internal_VLB_TUNNEL_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 1
+        management: false
+        allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_01
+        - virtual_binding: VDU_VLB
+
+    Internal_VLB_TUNNEL_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 2
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_02
+        - virtual_binding: VDU_VLB
+
+    Internal_VLB_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 3
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_VLB
+
+    Internal_VLB_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 4
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_Tunnel_VL_02
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_VLB
 
-
-    Provider_WSG_Internal_emxRouter_CP0:
+    Internal_VLB_DB_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv4
+          - ipv6
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
@@ -630,13 +1477,11 @@ topology_template:
         trunk_mode: false
         order: 5
         management: false
-        iface_type: direct
       requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_eMXRouter_VL_01
+        - virtual_binding: VDU_VLB
+        - virtual_link: Internal_DB_VL_01
 
-
-    Provider_WSG_Internal_emxRouter_CP1:
+    Internal_VLB_DB_CP_02:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -649,17 +1494,48 @@ topology_template:
         trunk_mode: false
         order: 6
         management: false
+      requirements:
+        - virtual_binding: VDU_VLB
+        - virtual_link: Internal_DB_VL_02
+
+    Provider_VLB_ACS_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 7
+        management: true
         iface_type: direct
       requirements:
-        - virtual_binding: VDU_WSG
-        - virtual_link: Internal_WSG_eMXRouter_VL_02
+        - virtual_binding: VDU_VLB
+#        - virtual_link: # the target node is determined in the NSD "Provider_VLB_ACS1_VL"
 
-#######################################
-##           FE CPs                  ##
-#######################################
+    Provider_VLB_ACS_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 8
+        management: true
+        iface_type: direct
+      requirements:
+        - virtual_binding: VDU_VLB
+#        - virtual_link: # the target node is determined in the NSD "Provider_VLB_ACS2_VL"
 
-
-    Provider_WSGFE_OAM_CP:
+## SIG1 Includes SIP/DNS/LDAP
+    Provider_VLB_SIG_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -669,67 +1545,122 @@ topology_template:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 9
+        management: false
+        iface_type: direct
+      requirements:
+        - virtual_binding: VDU_VLB
+#        - virtual_link: # the target node is determined in the NSD "Provider_VLB_SIG1_VL"
+
+## SIG2 Includes different DAIMETER interfaces
+    Provider_VLB_SIG_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 10
+        iface_type: direct
+        management: false
+      requirements:
+        - virtual_binding: VDU_VLB
+#        - virtual_link: # the target node is determined in the NSD "Provider_VLB_SIG2_VL"
+
+#######################################
+# Connection points Details for SIPRE##
+#######################################
+    Provider_SIPRE_OAM_CP:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv4
+        protocol:
+          - associated_layer_protocol: ipv4
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
         trunk_mode: false
         order: 0
         management: true
       requirements:
-        - virtual_binding: VDU_FE
+        - virtual_binding: VDU_SIPRE
+#        - virtual_link: # the target node is determined in the NSD "Provider_SIPRE_OAM_VL"
 
-    Provider_WSGFE_Internal_DB_CP0:
+    Internal_SIPRE_TUNNEL_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
-        description: External Connection Point to access Outside
+        description: Internal Connection Point on VL
         layer_protocols:
-          - ipv4
+          - ipv6
         protocol:
-          - associated_layer_protocol: ipv4
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 1
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_DB_VL_01
+        - virtual_link:  Internal_TUNNEL_VL_01
+        - virtual_binding: VDU_SIPRE
 
-    Provider_WSGFE_Internal_DB_CP1:
+    Internal_SIPRE_TUNNEL_CP_02:
       type: cisco.nodes.nfv.VduCp
       properties:
-        description: External Connection Point to access Outside
+        description: Internal Connection Point on VL
         layer_protocols:
           - ipv6
         protocol:
           - associated_layer_protocol: ipv6
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 2
         management: false
-        iface_type: direct
-      requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_DB_VL_02
-
-    Provider_WSGFE_Internal_Tunnel_CP0:
-      type: cisco.nodes.nfv.VduCp
-      properties:
-        description: External Connection Point to access Outside
-        layer_protocols:
-          - ipv4
-        protocol:
-          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_02
+        - virtual_binding: VDU_SIPRE
+
+    Internal_SIPRE_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 3
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_Tunnel_VL_01
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_SIPRE
 
-    Provider_WSGFE_Internal_Tunnel_CP1:
+    Internal_SIPRE_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 4
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_SIPRE
+
+    Internal_SIPRE_DB_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -737,36 +1668,16 @@ topology_template:
           - ipv6
         protocol:
           - associated_layer_protocol: ipv6
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
-        trunk_mode: false
-        order: 4
-        management: false
-        iface_type: direct
-      requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_Tunnel_VL_02
-
-    Provider_WSGFE_Internal_emxRouter_CP0:
-      type: cisco.nodes.nfv.VduCp
-      properties:
-        description: External Connection Point to access Outside
-        layer_protocols:
-          - ipv4
-        protocol:
-          - associated_layer_protocol: ipv4
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 5
         management: false
-        iface_type: direct
       requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_eMXRouter_VL_01
+        - virtual_binding: VDU_SIPRE
+        - virtual_link: Internal_DB_VL_01
 
-
-    Provider_WSGFE_Internal_emxRouter_CP1:
+    Internal_SIPRE_DB_CP_02:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -779,51 +1690,454 @@ topology_template:
         trunk_mode: false
         order: 6
         management: false
-        iface_type: direct
       requirements:
-        - virtual_binding: VDU_FE
-        - virtual_link: Internal_WSG_eMXRouter_VL_02
+        - virtual_binding: VDU_SIPRE
+        - virtual_link: Internal_DB_VL_02
 
-    Provider_WSGFE_External_AccessSignaling_CP:
+#######################################
+# Connection points Details for DIAMRE##
+#######################################
+    Provider_DIAM_RE_OAM_CP:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv4
+          - ipv6
         protocol:
-          - associated_layer_protocol: ipv4
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 0
+        management: true
+      requirements:
+        - virtual_binding: VDU_DIAMRE
+#        - virtual_link: # the target node is determined in the NSD "Provider_DIAM_RE_OAM_VL"
+
+    Internal_DIAMRE_TUNNEL_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 1
+        management: false
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_01
+        - virtual_binding: VDU_DIAMRE
+
+    Internal_DIAMRE_TUNNEL_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 2
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_02
+        - virtual_binding: VDU_DIAMRE
+
+    Internal_DIAMRE_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 3
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_DIAMRE
+
+    Internal_DIAMRE_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 4
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_DIAMRE
+
+    Internal_DIAMRE_DB_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 5
+        management: false
+      requirements:
+        - virtual_binding: VDU_DIAMRE
+        - virtual_link: Internal_DB_VL_01
+
+    Internal_DIAMRE_DB_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 6
+        management: false
+      requirements:
+        - virtual_binding: VDU_DIAMRE
+        - virtual_link: Internal_DB_VL_02
+
+#######################################
+# Connection points Details for GTRE##
+#######################################
+    Provider_GTRE_OAM_CP:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 0
+        management: true
+      requirements:
+        - virtual_binding: VDU_GTRE
+#        - virtual_link: # the target node is determined in the NSD "Provider_GTRE_OAM_VL"
+
+    Internal_GTRE_TUNNEL_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 1
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_01
+        - virtual_binding: VDU_GTRE
+
+    Internal_GTRE_TUNNEL_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 2
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_02
+        - virtual_binding: VDU_GTRE
+
+    Internal_GTRE_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 3
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_GTRE
+
+    Internal_GTRE_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 4
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_GTRE
+
+    Internal_GTRE_DB_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 5
+        management: false
+      requirements:
+        - virtual_binding: VDU_GTRE
+        - virtual_link: Internal_DB_VL_01
+
+    Internal_GTRE_DB_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 6
+        management: false
+      requirements:
+        - virtual_binding: VDU_GTRE
+        - virtual_link: Internal_DB_VL_02
+
+
+#######################################
+# Connection points Details for MP##
+#######################################
+    Provider_MP_OAM_CP:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 0
+        management: true
+      requirements:
+        - virtual_binding: VDU_MP
+#        - virtual_link: # the target node is determined in the NSD "Provider_MP_OAM_VL"
+
+    Internal_MP_DB_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 1
+        management: false
+      requirements:
+        - virtual_binding: VDU_MP
+        - virtual_link: Internal_DB_VL_01
+
+    Internal_MP_DB_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 2
+        management: false
+      requirements:
+        - virtual_binding: VDU_MP
+        - virtual_link: Internal_DB_VL_02
+
+    Provider_MP_ACM_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 3
+        iface_type: direct
+        management: true
+      requirements:
+        - virtual_binding: VDU_MP
+#        - virtual_link: # the target node is determined in the NSD "Provider_MP_ACM1_VL"
+
+    Provider_MP_ACM_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 4
+        iface_type: direct
+        management: true
+      requirements:
+        - virtual_binding: VDU_MP
+#        - virtual_link: # the target node is determined in the NSD "Provider_MP_ACM2_VL"
+
+    Provider_MP_ECM_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 5
+        iface_type: direct
+        management: true
+      requirements:
+        - virtual_binding: VDU_MP
+#        - virtual_link: # the target node is determined in the NSD "Provider_MP_ECM1_VL"
+
+    Provider_MP_ECM_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 6
+        iface_type: direct
+        management: true
+      requirements:
+        - virtual_binding: VDU_MP
+#        - virtual_link: # the target node is determined in the NSD "Provider_MP_ECM2_VL"
+
+    Internal_MP_H248_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 7
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_FE
+        - virtual_link:  Internal_H248_VL_01
+        - virtual_binding: VDU_MP
 
-    Provider_WSGFE_External_CoreSignaling_CP:
+    Internal_MP_H248_CP_02:
       type: cisco.nodes.nfv.VduCp
       properties:
-        description: External Connection Point to access Outside
+        description: Internal Connection Point on VL
         layer_protocols:
           - ipv6
         protocol:
           - associated_layer_protocol: ipv6
-        allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
         order: 8
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_FE
+        - virtual_link:  Internal_H248_VL_02
+        - virtual_binding: VDU_MP
+
+    Internal_MP_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 9
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_MP
+
+    Internal_MP_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 10
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_MP
+
 
 #######################################
-##           SM CPs                  ##
+# Connection points Details for UPC##
 #######################################
-
-
-    Provider_WSGSM_OAM_CP:
+    Provider_UPC_OAM_CP:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -832,32 +2146,173 @@ topology_template:
         protocol:
           - associated_layer_protocol: ipv6
         allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
         trunk_mode: false
         order: 0
         management: true
       requirements:
-        - virtual_binding: VDU_SM
+        - virtual_binding: VDU_UPC
+#        - virtual_link: # the target node is determined in the NSD "Provider_UPC_OAM_VL"
 
-    Provider_WSGSM_Internal_emxRouter_CP0:
+    Internal_UPC_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 1
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_UPC
+
+    Internal_UPC_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 2
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_UPC
+
+    Internal_UPC_H248_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 3
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_H248_VL_01
+        - virtual_binding: VDU_UPC
+
+    Internal_UPC_H248_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 4
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_H248_VL_02
+        - virtual_binding: VDU_UPC
+
+
+#######################################
+# Connection points Details for SC##
+#######################################
+#SSH/HTTP/HTTPS/SFTP/SNMP
+    Provider_SC_OAM_CP:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
         layer_protocols:
-          - ipv4
+          - ipv6
         protocol:
-          - associated_layer_protocol: ipv4
+          - associated_layer_protocol: ipv6
         allowed_address_pairs:
-          - ip_address: { get_input: GEN_ADDR_PAIRS }
+          - ip_address: { get_input: GEN_ADDR_PAIRS4 }
+        trunk_mode: false
+        order: 0
+        management: true
+      requirements:
+        - virtual_binding: VDU_SC
+#        - virtual_link: # the target node is determined in the NSD "Provider_TAS_SC_VL"
+
+    Internal_SC_TUNNEL_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
         trunk_mode: false
         order: 1
         management: false
-        iface_type: direct
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
       requirements:
-        - virtual_binding: VDU_SM
-        - virtual_link: Internal_WSG_eMXRouter_VL_01
+        - virtual_link:  Internal_TUNNEL_VL_01
+        - virtual_binding: VDU_SC
 
-    Provider_WSGSM_Internal_emxRouter_CP1:
+    Internal_SC_TUNNEL_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 2
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_TUNNEL_VL_02
+        - virtual_binding: VDU_SC
+
+    Internal_SC_emx_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 3
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_01
+        - virtual_binding: VDU_SC
+
+    Internal_SC_emx_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 4
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_SIG_VL_02
+        - virtual_binding: VDU_SC
+
+    Internal_SC_DB_CP_01:
       type: cisco.nodes.nfv.VduCp
       properties:
         description: External Connection Point to access Outside
@@ -868,38 +2323,69 @@ topology_template:
         allowed_address_pairs:
           - ip_address: { get_input: GEN_ADDR_PAIRS }
         trunk_mode: false
-        order: 2
+        order: 5
         management: false
-        iface_type: direct
       requirements:
-        - virtual_binding: VDU_SM
-        - virtual_link: Internal_WSG_eMXRouter_VL_02
+        - virtual_link: Internal_DB_VL_01
+        - virtual_binding: VDU_SC
 
+    Internal_SC_DB_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: External Connection Point to access Outside
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+        trunk_mode: false
+        order: 6
+        management: false
+      requirements:
+        - virtual_binding: VDU_SC
+        - virtual_link: Internal_DB_VL_02
+
+    Internal_SC_H248_CP_01:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 7
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_H248_VL_01
+        - virtual_binding: VDU_SC
+
+    Internal_SC_H248_CP_02:
+      type: cisco.nodes.nfv.VduCp
+      properties:
+        description: Internal Connection Point on VL
+        layer_protocols:
+          - ipv6
+        protocol:
+          - associated_layer_protocol: ipv6
+        trunk_mode: false
+        order: 8
+        management: false
+        allowed_address_pairs:
+          - ip_address: { get_input: GEN_ADDR_PAIRS }
+      requirements:
+        - virtual_link:  Internal_H248_VL_02
+        - virtual_binding: VDU_SC
 
 ##################################
 # Internal Virtual Link Details ##
 ##################################
 #There is slight changes with new additional attributes like: ip_allocation_pools and gateway_ip
 
-    Internal_WSG_DB_VL_01:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        connectivity_type:
-          layer_protocols:
-            - ipv4
-        vl_profile:
-          min_bitrate_requirements:
-            root: 100000000
-          max_bitrate_requirements:
-            root: 100000000
-          virtual_link_protocol_data:
-            - associated_layer_protocol: ipv4
-              l3_protocol_data:
-                ip_version: ipv4
-                cidr: { get_input: NETWORK_VL_INTERNAL_DB_CIDR }
-                dhcp_enabled: { get_input: DHCP_STATE }
-
-    Internal_WSG_DB_VL_02:
+    Internal_SIG_VL_01:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         connectivity_type:
@@ -907,36 +2393,21 @@ topology_template:
             - ipv6
         vl_profile:
           min_bitrate_requirements:
-            root: 100000000
+            root: 0
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
             - associated_layer_protocol: ipv6
               l3_protocol_data:
                 ip_version: ipv6
-                cidr: { get_input: NETWORK_VL_INTERNAL_DB_CIDR }
+                cidr: { get_input: NETWORK_VL_INTERNAL_SIG_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_SIG_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
-    Internal_WSG_Tunnel_VL_01:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        connectivity_type:
-          layer_protocols:
-            - ipv4
-        vl_profile:
-          min_bitrate_requirements:
-            root: 100000000
-          max_bitrate_requirements:
-            root: 100000000
-          virtual_link_protocol_data:
-            - associated_layer_protocol: ipv4
-              l3_protocol_data:
-                ip_version: ipv4
-                cidr: { get_input: NETWORK_VL_INTERNAL_Tunnel_CIDR }
-                dhcp_enabled: { get_input: DHCP_STATE }
-
-
-    Internal_WSG_Tunnel_VL_02:
+    Internal_SIG_VL_02:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         connectivity_type:
@@ -944,36 +2415,21 @@ topology_template:
             - ipv6
         vl_profile:
           min_bitrate_requirements:
-            root: 100000000
+            root: 0
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
             - associated_layer_protocol: ipv6
               l3_protocol_data:
                 ip_version: ipv6
-                cidr: { get_input: NETWORK_VL_INTERNAL_Tunnel_CIDR }
+                cidr: { get_input: NETWORK_VL_INTERNAL_SIG_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_SIG_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
-    Internal_WSG_eMXRouter_VL_01:
-      type: tosca.nodes.nfv.VnfVirtualLink
-      properties:
-        connectivity_type:
-          layer_protocols:
-            - ipv4
-        vl_profile:
-          min_bitrate_requirements:
-            root: 100000000
-          max_bitrate_requirements:
-            root: 100000000
-          virtual_link_protocol_data:
-            - associated_layer_protocol: ipv4
-              l3_protocol_data:
-                ip_version: ipv4
-                cidr: { get_input: NETWORK_VL_INTERNAL_EMXRouter_CIDR }
-                dhcp_enabled: { get_input: DHCP_STATE }
-
-
-    Internal_WSG_eMXRouter_VL_02:
+    Internal_DB_VL_01:
       type: tosca.nodes.nfv.VnfVirtualLink
       properties:
         connectivity_type:
@@ -981,22 +2437,133 @@ topology_template:
             - ipv6
         vl_profile:
           min_bitrate_requirements:
-            root: 100000000
+            root: 0
           max_bitrate_requirements:
             root: 100000000
           virtual_link_protocol_data:
             - associated_layer_protocol: ipv6
               l3_protocol_data:
                 ip_version: ipv6
-                cidr: { get_input: NETWORK_VL_INTERNAL_EMXRouter_CIDR }
+                cidr: { get_input: NETWORK_VL_INTERNAL_SESS_DB_CIDR }
+#                ip_allocation_pools:
+#               - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_SESS_DB_IP_ADDR }
                 dhcp_enabled: { get_input: DHCP_STATE }
 
+    Internal_DB_VL_02:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols:
+            - ipv6
+        vl_profile:
+          min_bitrate_requirements:
+            root: 0
+          max_bitrate_requirements:
+            root: 100000000
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv6
+              l3_protocol_data:
+                ip_version: ipv6
+                cidr: { get_input: NETWORK_VL_INTERNAL_SESS_DB_CIDR }
+#                ip_allocation_pools:
+#               - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_SESS_DB_IP_ADDR }
+                dhcp_enabled: { get_input: DHCP_STATE }
 
+    Internal_TUNNEL_VL_01:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols:
+            - ipv6
+        vl_profile:
+          min_bitrate_requirements:
+            root: 0
+          max_bitrate_requirements:
+            root: 100000000
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv6
+              l3_protocol_data:
+                ip_version: ipv6
+                cidr: { get_input: NETWORK_VL_INTERNAL_TUNNEL_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_TUNNEL_IP_ADDR }
+                dhcp_enabled: { get_input: DHCP_STATE }
 
-###########################
-######   Policies  ########
-###########################
+    Internal_TUNNEL_VL_02:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols:
+            - ipv6
+        vl_profile:
+          min_bitrate_requirements:
+            root: 0
+          max_bitrate_requirements:
+            root: 100000000
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv6
+              l3_protocol_data:
+                ip_version: ipv6
+                cidr: { get_input: NETWORK_VL_INTERNAL_TUNNEL_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_TUNNEL_IP_ADDR }
+                dhcp_enabled: { get_input: DHCP_STATE }
 
+    Internal_H248_VL_01:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols:
+            - ipv6
+        vl_profile:
+          min_bitrate_requirements:
+            root: 0
+          max_bitrate_requirements:
+            root: 100000000
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv6
+              l3_protocol_data:
+                ip_version: ipv6
+                cidr: { get_input: NETWORK_VL_INTERNAL_H248_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_H248_IP_ADDR }
+                dhcp_enabled: { get_input: DHCP_STATE }
+
+    Internal_H248_VL_02:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        connectivity_type:
+          layer_protocols:
+            - ipv6
+        vl_profile:
+          min_bitrate_requirements:
+            root: 0
+          max_bitrate_requirements:
+            root: 100000000
+          virtual_link_protocol_data:
+            - associated_layer_protocol: ipv6
+              l3_protocol_data:
+                ip_version: ipv6
+                cidr: { get_input: NETWORK_VL_INTERNAL_H248_CIDR }
+#                ip_allocation_pools:
+#                - start_ip_address: { get_input: START_IP_ADDR }
+#                  end_ip_address: { get_input: END_IP_ADDR }
+                gateway_ip: { get_input: GATEWAY_INTERNAL_H248_IP_ADDR }
+                dhcp_enabled: { get_input: DHCP_STATE }
+
+##############################################
+####    Policy Configuration details      ####
+##############################################
 
   policies:
     - scaling_aspects:
@@ -1006,7 +2573,7 @@ topology_template:
             default_scaling_aspect:
               name: 'default_scaling_aspect'
               description: 'default scaling aspect'
-              max_scale_level: 1
+              max_scale_level: 4
               step_deltas:
                 - delta_1
 
@@ -1021,12 +2588,13 @@ topology_template:
                   scale_level: 0
           default_level: default
 
+
     - vdu_initial_delta:
         type: tosca.policies.nfv.VduInitialDelta
         properties:
           initial_delta:
             number_of_instances: 1
-        targets: [ VDU_WSG, VDU_SM, VDU_FE ]
+        targets: [ VDU_VLB, VDU_SM, VDU_DIAMRE, VDU_GTRE, VDU_SC, VDU_MP, VDU_UPC ]
 
     - vdu_scaling_aspect_deltas:
         type: tosca.policies.nfv.VduScalingAspectDeltas
@@ -1035,11 +2603,72 @@ topology_template:
           deltas:
             delta_1:
               number_of_instances: 1
-        targets: [ VDU_WSG, VDU_SM, VDU_FE ]
+        targets: [ VDU_VLB, VDU_SM, VDU_DIAMRE, VDU_GTRE, VDU_SC, VDU_MP, VDU_UPC ]
+
     - vdu_instantiation_levels:
         type: tosca.policies.nfv.VduInstantiationLevels
         properties:
           levels:
             default:
               number_of_instances: 1
-        targets: [ VDU_WSG, VDU_SM, VDU_FE ]
+        targets: [ VDU_VLB, VDU_SM, VDU_DIAMRE, VDU_GTRE, VDU_SC, VDU_MP, VDU_UPC ]
+
+    - SM_initial_delta:
+        type: tosca.policies.nfv.VduInitialDelta
+        properties:
+          initial_delta:
+            number_of_instances: 1
+        targets: [ VDU_SIPRE ]
+
+    - SM_scaling_aspect_deltas:
+        type: tosca.policies.nfv.VduScalingAspectDeltas
+        properties:
+          aspect: default_scaling_aspect
+          deltas:
+            delta_1:
+              number_of_instances: 1
+        targets: [ VDU_SIPRE ]
+
+    - SM_instantiation_levels:
+        type: tosca.policies.nfv.VduInstantiationLevels
+        properties:
+          levels:
+            default:
+              number_of_instances: 1
+        targets: [ VDU_SIPRE ]
+
+    - policy_antiaffinity_1:
+        type: tosca.policies.nfv.AntiAffinityRule
+        targets: [ aa_group_1 ]
+        properties:
+          scope: 'nfvi_node'
+
+    - policy_antiaffinity_2:
+        type: tosca.policies.nfv.AntiAffinityRule
+        targets: [ aa_group_2 ]
+        properties:
+          scope: 'nfvi_node'
+
+    - vim_network_orch_sec_grp_0:
+        type: cisco.policies.nfv.SecurityGroupRule
+        properties:
+          group_name: { get_input: VIM_NETWORK_ORCH_SEC_GRP_0 }
+        targets: [ VDU_SM ]
+
+    - vim_network_orch_sec_grp_1:
+        type: cisco.policies.nfv.SecurityGroupRule
+        properties:
+          group_name: { get_input: VIM_NETWORK_ORCH_SEC_GRP_1 }
+        targets: [ VDU_VLB ]
+
+#######################
+# Group configuration #
+#######################
+  groups:
+    aa_group_1:
+      type: tosca.groups.nfv.PlacementGroup
+      members: [ VDU_VLB ]
+
+    aa_group_2:
+      type: tosca.groups.nfv.PlacementGroup
+      members: [ VDU_SM ]

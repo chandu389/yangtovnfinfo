@@ -93,8 +93,9 @@ class yangtovnfinfo:
     def add_vnfd_connection_points(self):
         for extcp in self.parsed_yaml["topology_template"]["substitution_mappings"]["requirements"]:
             for k, v in extcp.items():
+                extcpName = v[0]
                 vnfdcp_ele = self.doc.createElement("vnfd-connection-point")
-                if "management" in self.parsed_yaml["topology_template"]["node_templates"][k]["properties"] and self.parsed_yaml["topology_template"]["node_templates"][k]["properties"]["management"] is True:
+                if "management" in self.parsed_yaml["topology_template"]["node_templates"][extcpName]["properties"] and self.parsed_yaml["topology_template"]["node_templates"][extcpName]["properties"]["management"] is True:
                     continue
                 else:
                     idele = self.doc.createElement("id")
@@ -154,11 +155,13 @@ class yangtovnfinfo:
         node_template = self.parsed_yaml["topology_template"]["node_templates"]
         for k, v in node_template.items():
             if node_template[k]["type"] == "cisco.nodes.nfv.VduCp":
-                if node_template[k]["requirements"][0]["virtual_binding"] and node_template[k]["requirements"][0]["virtual_binding"] == vdu_name:
-                    if len(node_template[k]["requirements"]) > 1:
-                        int_cps.append(k)
-                    else:
-                        ext_cps.append(k)
+                print(k)
+                print("chandra")
+                print(node_template[k]["requirements"][0])
+                if len(node_template[k]["requirements"]) > 1:
+                    int_cps.append(k)
+                else:
+                    ext_cps.append(k)
         return int_cps, ext_cps
 
     def add_internal_cp(self, int_cp, vdu_ele):
