@@ -4,7 +4,7 @@ Install Dependencies:
     
 Example command:
 
-    python3 yangtovnfinfo.py -s1f sol001.yaml  -s3f sol003.json -tf templates/VnfInfo.xml -o vnf-info.xml
+    python3 yangtovnfinfo.py -s1f sol001.yaml  -s3f sol003.json -tf templates/template.xml -o vnf-info.xml
  
  
 To see more details use:
