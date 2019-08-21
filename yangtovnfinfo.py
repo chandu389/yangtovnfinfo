@@ -155,13 +155,13 @@ class yangtovnfinfo:
         node_template = self.parsed_yaml["topology_template"]["node_templates"]
         for k, v in node_template.items():
             if node_template[k]["type"] == "cisco.nodes.nfv.VduCp":
-                print(k)
-                print("chandra")
-                print(node_template[k]["requirements"][0])
-                if len(node_template[k]["requirements"]) > 1:
-                    int_cps.append(k)
-                else:
-                    ext_cps.append(k)
+                for idx in range(len(node_template[k]["requirements"])):
+                    if len(node_template[k]["requirements"]) > 1:
+                        for key in node_template[k]["requirements"][idx]:
+                            if key == "virtual_binding" and node_template[k]["requirements"][idx][key] == vdu_name:
+                                int_cps.append(k)
+                    elif "virtual_binding" in node_template[k]["requirements"][0] and node_template[k]["requirements"][0]["virtual_binding"] == vdu_name:
+                        ext_cps.append(k)
         return int_cps, ext_cps
 
     def add_internal_cp(self, int_cp, vdu_ele):
